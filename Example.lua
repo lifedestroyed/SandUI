@@ -259,7 +259,7 @@ TabHandles.Appearance:Button({
     Title = "Create New Theme",
     Icon = "plus",
     Callback = function()
-        WindUI:Dialog({
+        Window:Dialog({
             Title = "Create Theme",
             Content = "This feature is coming soon!",
             Buttons = {
