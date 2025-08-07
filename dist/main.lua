@@ -7433,7 +7433,7 @@ o.UIElements.Main.Visible=true
 task.spawn(function()
 task.wait(.05)
 o.UIElements.Main:WaitForChild"Main".Visible=true
-if A:IsA"VideoFrame"then
+if A and A:IsA"VideoFrame"then
 A.Visible=true
 end
 end)
@@ -7450,7 +7450,7 @@ end
 
 o.UIElements.Main:WaitForChild"Main".Visible=false
 
-if A:IsA"VideoFrame"then
+if A and A:IsA"VideoFrame"then
 A.Visible=false
 end
 o.CanDropdown=false
