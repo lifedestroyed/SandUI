@@ -220,7 +220,7 @@ local m=h.Localization.Translations[h.Language]
 if m and m[l]then
 k.Text=m[l]
 else
-local n=h.Localization.Translations.en
+local n=h.Localization and h.Localization.Translations and h.Localization.Translations.en or nil
 if n and n[l]then
 k.Text=n[l]
 else
@@ -228,6 +228,7 @@ k.Text="["..l.."]"
 end
 end
 end
+
 
 function h.ChangeTranslationKey(i,j,k)
 local l=string.match(k,"^"..h.Localization.Prefix.."(.+)")

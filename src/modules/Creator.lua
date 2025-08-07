@@ -203,7 +203,7 @@ function Creator.SetLangForObject(index)
     if translations and translations[translationId] then
         obj.Text = translations[translationId]
     else
-        local enTranslations = Creator.Localization.Translations["en"]
+        local enTranslations = Creator.Localization and Creator.Localization.Translations and Creator.Localization.Translations.en or nil
         if enTranslations and enTranslations[translationId] then
             obj.Text = enTranslations[translationId]
         else
@@ -211,6 +211,7 @@ function Creator.SetLangForObject(index)
         end
     end
 end
+
 
 function Creator:ChangeTranslationKey(object, newKey)
     local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
