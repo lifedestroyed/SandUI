@@ -1,1160 +1,454 @@
 local WindUI = require("./src/init")
 
--- Test
+WindUI:Localization({
+    Enabled = true,
+    Prefix = "loc:",
+    DefaultLanguage = "en",
+    Translations = {
+        ["ru"] = {
+            ["WINDUI_EXAMPLE"] = "WindUI Пример",
+            ["WELCOME"] = "Добро пожаловать в WindUI!",
+            ["LIB_DESC"] = "Библиотека для создания красивых интерфейсов",
+            ["SETTINGS"] = "Настройки",
+            ["APPEARANCE"] = "Внешний вид",
+            ["FEATURES"] = "Функционал",
+            ["UTILITIES"] = "Инструменты",
+            ["UI_ELEMENTS"] = "UI Элементы",
+            ["CONFIGURATION"] = "Конфигурация",
+            ["SAVE_CONFIG"] = "Сохранить конфигурацию",
+            ["LOAD_CONFIG"] = "Загрузить конфигурацию",
+            ["THEME_SELECT"] = "Выберите тему",
+            ["TRANSPARENCY"] = "Прозрачность окна"
+        },
+        ["en"] = {
+            ["WINDUI_EXAMPLE"] = "WindUI Example",
+            ["WELCOME"] = "Welcome to WindUI!",
+            ["LIB_DESC"] = "Beautiful UI library for Roblox",
+            ["SETTINGS"] = "Settings",
+            ["APPEARANCE"] = "Appearance",
+            ["FEATURES"] = "Features",
+            ["UTILITIES"] = "Utilities",
+            ["UI_ELEMENTS"] = "UI Elements",
+            ["CONFIGURATION"] = "Configuration",
+            ["SAVE_CONFIG"] = "Save Configuration",
+            ["LOAD_CONFIG"] = "Load Configuration",
+            ["THEME_SELECT"] = "Select Theme",
+            ["TRANSPARENCY"] = "Window Transparency"
+        }
+    }
+})
 
+WindUI.TransparencyValue = 0.2
+WindUI:SetTheme("Dark")
 
+WindUI:AddTheme({
+    Name = "Midnight",
+    Accent = "1a1b26",
+    Outline = "414868",
+    Text = "a9b1d6",
+    Placeholder = "565f89"
+})
 
--- Set theme:
---WindUI:SetTheme("Light")
+WindUI:AddTheme({
+    Name = "Sunset",
+    Accent = "f97316",
+    Outline = "fb923c",
+    Text = "4b5563",
+    Placeholder = "9ca3af"
+})
 
---- EXAMPLE !!!
+WindUI:AddTheme({
+    Name = "Ocean",
+    Accent = "0891b2",
+    Outline = "06b6d4",
+    Text = "164e63",
+    Placeholder = "67e8f9"
+})
 
-function gradient(text, startColor, endColor)
+WindUI:AddTheme({
+    Name = "Forest",
+    Accent = "16a34a",
+    Outline = "22c55e",
+    Text = "14532d",
+    Placeholder = "86efac"
+})
+
+local function gradient(text, startColor, endColor)
     local result = ""
-    local length = #text
-
-    for i = 1, length do
-        local t = (i - 1) / math.max(length - 1, 1)
+    for i = 1, #text do
+        local t = (i - 1) / (#text - 1)
         local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
         local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
         local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
-
-        local char = text:sub(i, i)
-        result = result .. "<font color=\"rgb(" .. r ..", " .. g .. ", " .. b .. ")\">" .. char .. "</font>"
+        result = result .. string.format('<font color="rgb(%d,%d,%d)">%s</font>', r, g, b, text:sub(i, i))
     end
-
     return result
 end
 
-local Confirmed = false
-
 WindUI:Popup({
-    Title = "Welcome! Popup Example",
-    Icon = "rbxassetid://77799629590713",
-    IconThemed = true,
-    Content = "This is an Example UI for the " .. gradient("WindUI", Color3.fromHex("#00FF87"), Color3.fromHex("#60EFFF")) .. " Lib",
+    Title = gradient("WindUI Demo", Color3.fromHex("#6A11CB"), Color3.fromHex("#2575FC")),
+    Icon = "sparkles",
+    Content = "loc:LIB_DESC",
     Buttons = {
         {
-            Title = "Cancel",
-            --Icon = "",
-            Callback = function() end,
-            Variant = "Secondary", -- Primary, Secondary, Tertiary
-        },
-        {
-            Title = "Continue",
+            Title = "Get Started",
             Icon = "arrow-right",
-            Callback = function() Confirmed = true end,
-            Variant = "Primary", -- Primary, Secondary, Tertiary
+            Variant = "Primary",
+            Callback = function() end
         }
     }
 })
-
-
-repeat wait() until Confirmed
-
--- Start
 
 local Window = WindUI:CreateWindow({
-    Title = "WindUI Library",
-    Icon = "rbxassetid://77799629590713",
-    IconThemed = true,
-    Author = "Example UI",
-    Folder = "CloudHub",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    Resizable = true,
+    Title = "loc:WINDUI_EXAMPLE",
+    Icon = "palette",
+    Author = "loc:WELCOME",
+    Folder = "WindUI_Example",
+    Size = UDim2.fromOffset(700, 500),
     Theme = "Dark",
+    -- Background = WindUI:Gradient({
+    --     ["0"] = { Color = Color3.fromHex("#0f0c29"), Transparency = 1 },
+    --     ["100"] = { Color = Color3.fromHex("#302b63"), Transparency = 0.9 },
+    -- }, {
+    --     Rotation = 45,
+    -- }),
+    --Background = "video:https://cdn.discordapp.com/attachments/1337368451865645096/1402703845657673878/VID_20250616_180732_158.webm?ex=68958a01&is=68943881&hm=164c5b04d1076308b38055075f7eb0653c1d73bec9bcee08e918a31321fe3058&",
     User = {
-        Enabled = true, -- <- or false
-        Callback = function() print("clicked") end, -- <- optional
-        Anonymous = true -- <- or true
+        Enabled = true,
+        Anonymous = true,
+        Callback = function()
+            WindUI:Notify({
+                Title = "User Profile",
+                Content = "User profile clicked!",
+                Duration = 3
+            })
+        end
     },
-    SideBarWidth = 200,
-    -- HideSearchBar = true, -- hides searchbar
-    ScrollBarEnabled = true, -- enables scrollbar
-    -- Background = "rbxassetid://13511292247", -- rbxassetid only
-
-    -- remove it below if you don't want to use the key system in your script.
-    KeySystem = { -- <- keysystem enabled
-        Key = { "1234", "5678" },
-        Note = "Example Key System. \n\nThe Key is '1234' or '5678",
-        -- Thumbnail = {
-        --     Image = "rbxassetid://18220445082", -- rbxassetid only
-        --     Title = "Thumbnail"
-        -- },
-        URL = "link-to-linkvertise-or-discord-or-idk", -- remove this if the key is not obtained from the link.
-        SaveKey = true, -- saves key : optional
-    },
+    SideBarWidth = 220,
+    ScrollBarEnabled = true
 })
 
-
--- Window:SetBackgroundImage("rbxassetid://13511292247")
--- Window:SetBackgroundImageTransparency(0.9)
-
-
--- TopBar Edit
-
--- Disable Topbar Buttons
--- Window:DisableTopbarButtons({
---     "Close", 
---     "Minimize", 
---     "Fullscreen",
--- })
-
--- Create Custom Topbar Buttons
---                        ↓ Name             ↓ Icon          ↓ Callback                           ↓ LayoutOrder
-Window:CreateTopbarButton("MyCustomButton1", "bird",         function() print("clicked 1!") end,  990)
-Window:CreateTopbarButton("MyCustomButton2", "droplet-off",  function() print("clicked 2!") end,  989)
-Window:CreateTopbarButton("MyCustomButton3", "battery-plus", function() Window:ToggleFullscreen() end, 988)
-
-
-Window:EditOpenButton({
-    Title = "Open Example UI",
-    Icon = "rbxassetid://77799629590713",
-    CornerRadius = UDim.new(0,16),
-    StrokeThickness = 2,
-    Color = ColorSequence.new( -- gradient
-        Color3.fromHex("FF0F7B"), 
-        Color3.fromHex("F89B29")
-    ),
-    --Enabled = false,
-    Draggable = true,
+Window:Tag({
+    Title = "v1.6.4",
+    Color = Color3.fromHex("#30ff6a")
+})
+Window:Tag({
+    Title = "UI Library",
+    --Color = Color3.fromHex("#30ff6a")
 })
 
-
-local Tabs = {}
-
-do
-    Tabs.ElementsSection = Window:Section({
-        Title = "Elements",
-        Opened = true,
+Window:CreateTopbarButton("theme-switcher", "moon", function()
+    WindUI:SetTheme(WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark")
+    WindUI:Notify({
+        Title = "Theme Changed",
+        Content = "Current theme: "..WindUI:GetCurrentTheme(),
+        Duration = 2
     })
-    
-    Tabs.WindowSection = Window:Section({
-        Title = "Window Management",
-        Icon = "app-window-mac",
-        Opened = true,
-    })
-    
-    Tabs.OtherSection = Window:Section({
-        Title = "Other",
-        Opened = true,
-    })
+end, 990)
 
-    
-    Tabs.ParagraphTab = Tabs.ElementsSection:Tab({ Title = "Paragraph", Icon = "type" })
-    Tabs.ButtonTab = Tabs.ElementsSection:Tab({ Title = "Button", Icon = "mouse-pointer-2", Desc = "Contains interactive buttons for various actions." })
-    Tabs.CodeTab = Tabs.ElementsSection:Tab({ Title = "Code", Icon = "code", Desc = "Displays and manages code snippets." })
-    Tabs.ColorPickerTab = Tabs.ElementsSection:Tab({ Title = "ColorPicker", Icon = "paintbrush", Desc = "Choose and customize colors easily." })
-    Tabs.DialogTab = Tabs.ElementsSection:Tab({ Title = "Dialog", Icon = "message-square", Desc = "Dialog lol" })
-    Tabs.NotificationTab = Tabs.ElementsSection:Tab({ Title = "Notification", Icon = "bell", Desc = "Configure and view notifications." })
-    Tabs.ToggleTab = Tabs.ElementsSection:Tab({ Title = "Toggle", Icon = "toggle-left", Desc = "Switch settings on and off." })
-    Tabs.SliderTab = Tabs.ElementsSection:Tab({ Title = "Slider", Icon = "sliders-horizontal", Desc = "Adjust values smoothly with sliders." })
-    Tabs.InputTab = Tabs.ElementsSection:Tab({ Title = "Input", Icon = "keyboard", Desc = "Accept text and numerical input." })
-    Tabs.KeybindTab = Tabs.ElementsSection:Tab({ Title = "Keybind", Icon = "keyboard-off" })
-    Tabs.DropdownTab = Tabs.ElementsSection:Tab({ Title = "Dropdown", Icon = "chevrons-up-down", Desc = "Select from multiple options." })
-    
-    Tabs.WindowTab = Tabs.WindowSection:Tab({ 
-        Title = "Window and File Configuration", 
-        Icon = "settings", 
-        Desc = "Manage window settings and file configurations.", 
-        ShowTabTitle = true 
-    })
-    Tabs.CreateThemeTab = Tabs.WindowSection:Tab({ Title = "Create Theme", Icon = "palette", Desc = "Design and apply custom themes." })
-    
-    Tabs.LongTab = Tabs.OtherSection:Tab({ 
-        Title = "Long and empty tab. with custom icon", 
-        Icon = "rbxassetid://77799629590713", 
-        IconThemed = true, 
-        Desc = "Long Description" 
-    })
-    Tabs.LockedTab = Tabs.OtherSection:Tab({ Title = "Locked Tab", Icon = "lock", Desc = "This tab is locked", Locked = true })
-    Tabs.TabWithoutIcon = Tabs.OtherSection:Tab({ Title = "Tab Without icon", ShowTabTitle = true })
-    Tabs.Tests = Tabs.OtherSection:Tab({ Title = "Tests", Icon = "https://raw.githubusercontent.com/Footagesus/WindUI/main/docs/ui.png", ShowTabTitle = true })
-    
-    
-    Tabs.LastSection = Window:Section({
-        Title = "Section without tabs",
-        --Opened = true,
-    })
-    
-    Tabs.ConfigTab = Window:Tab({ Title = "Config", Icon = "file-cog" })
-end
-
-
-
-Window:SelectTab(1)
-
-Tabs.ParagraphTab:Paragraph({
-    Title = "Paragraph with Image & Thumbnail",
-    Desc = "Test Paragraph",
-    Image = "https://play-lh.googleusercontent.com/7cIIPlWm4m7AGqVpEsIfyL-HW4cQla4ucXnfalMft1TMIYQIlf2vqgmthlZgbNAQoaQ",
-    ImageSize = 42, -- default 30
-    Thumbnail = "https://tr.rbxcdn.com/180DAY-59af3523ad8898216dbe1043788837bf/768/432/Image/Webp/noFilter",
-    ThumbnailSize = 120 -- Thumbnail height
-})
-Tabs.ParagraphTab:Paragraph({
-    Title = "Paragraph with Image & Thumbnail & Buttons",
-    Desc = "Test Paragraph",
-    Image = "https://play-lh.googleusercontent.com/7cIIPlWm4m7AGqVpEsIfyL-HW4cQla4ucXnfalMft1TMIYQIlf2vqgmthlZgbNAQoaQ",
-    ImageSize = 42, -- default 30
-    Thumbnail = "https://tr.rbxcdn.com/180DAY-59af3523ad8898216dbe1043788837bf/768/432/Image/Webp/noFilter",
-    ThumbnailSize = 120, -- Thumbnail height
-    Buttons = {
-        {
-            Title = "Button 1",
-            Variant = "Primary",
-            Callback = function() print("1 Button") end,
-            Icon = "bird",
-        },
-        {
-            Title = "Button 2",
-            Variant = "Primary",
-            Callback = function() print("2 Button") end,
-            Icon = "bird",
-        },
-        {
-            Title = "Button 3",
-            Variant = "Primary",
-            Callback = function() print("3 Button") end,
-            Icon = "bird",
-        },
-    }
-})
-
-Tabs.ParagraphTab:Divider()
-
-for _,i in next, { "Default", "Red", "Orange", "Green", "Blue", "Grey", "White" } do
-    Tabs.ParagraphTab:Paragraph({
-        Title = i,
-        Desc = "Paragraph with color",
-        Image = "bird",
-        Color = i ~= "Default" and i or nil,
-        Buttons = {
-            {
-                Title = "Button 1",
-                Variant = "Primary",
-                Callback = function() print("1 Button") end,
-                Icon = "bird",
-            },
-            {
-                Title = "Button 2",
-                Variant = "Primary",
-                Callback = function() print("2 Button") end,
-                Icon = "bird",
-            },
-            {
-                Title = "Button 3",
-                Variant = "Primary",
-                Callback = function() print("3 Button") end,
-                Icon = "bird",
-            },
-        }
-    })
-end
-
-
-
-Tabs.ButtonTab:Button({
-    Title = "Click Me",
-    Desc = "This is a simple button",
-    Callback = function() print("Button Clicked!") end
-})
-
-
-local destroybtn
-destroybtn = Tabs.ButtonTab:Button({
-    Title = "Click to destroy me!",
-    Callback = function() destroybtn:Destroy() end,
-})
-
-Tabs.ButtonTab:Button({
-    Title = "Submit",
-    Desc = "Click to submit",
-    Callback = function() print("Submitted!") end,
-})
-
-Tabs.ButtonTab:Button({
-    Title = "Set ToggleKey to 'F'",
-    Callback = function() Window:SetToggleKey(Enum.KeyCode.F) end,
-})
-
-Tabs.ButtonTab:Divider()
-
-
-Tabs.ButtonTab:Button({
-    Title = "Locked Button",
-    Desc = "This button is locked",
-    Locked = true,
-})
-
-
-Tabs.CodeTab:Code({
-    Title = "example-code.luau",
-    Code = [[-- Example Luau code to test syntax highlighting
-local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
-
-local function factorial(n)
-    if n <= 1 then
-        return 1
-    else
-        return n * factorial(n - 1)
-    end
-end
-
-local result = factorial(5)
-print("Factorial of 5 is:", result)
-
-local playerName = "Player"
-local score = 100
-
-if score >= 100 then
-    print(playerName .. " earned an achievement!")
-else
-    warn("Need more points.")
-end
-
--- Table with nested values
-local playerStats = {
-    name = "Player",
-    health = 100,
-    inventory = {"sword", "shield", "potion"}
+local Tabs = {
+    Main = Window:Section({ Title = "loc:FEATURES", Opened = true }),
+    Settings = Window:Section({ Title = "loc:SETTINGS", Opened = true }),
+    Utilities = Window:Section({ Title = "loc:UTILITIES", Opened = true })
 }
 
-for i, item in ipairs(playerStats.inventory) do
-    print("Item in inventory:", item)
-end]],
+local TabHandles = {
+    Elements = Tabs.Main:Tab({ Title = "loc:UI_ELEMENTS", Icon = "layout-grid" }),
+    Appearance = Tabs.Settings:Tab({ Title = "loc:APPEARANCE", Icon = "brush" }),
+    Config = Tabs.Utilities:Tab({ Title = "loc:CONFIGURATION", Icon = "settings" })
+}
+
+TabHandles.Elements:Paragraph({
+    Title = "Interactive Components",
+    Desc = "Explore WindUI's powerful elements",
+    Image = "component",
+    ImageSize = 20,
+    Color = "White",
 })
 
-Tabs.CodeTab:Code({
-    Code = [[print("WindUI on top!")]],
+TabHandles.Elements:Divider()
+
+local toggleState = false
+local featureToggle = TabHandles.Elements:Toggle({
+    Title = "Enable Advanced Features",
+    Desc = "Unlocks additional functionality",
+    Value = false,
+    Callback = function(state) 
+        toggleState = state
+        WindUI:Notify({
+            Title = "Features",
+            Content = state and "Features Enabled" or "Features Disabled",
+            Icon = state and "check" or "x",
+            Duration = 2
+        })
+    end
 })
 
-
-
-Tabs.ColorPickerTab:Colorpicker({
-    Title = "Pick a Color",
-    Default = Color3.fromRGB(255, 0, 0),
-    Callback = function(color) print("Selected color: " .. tostring(color)) end
+local intensitySlider = TabHandles.Elements:Slider({
+    Title = "Effect Intensity",
+    Desc = "Adjust the effect strength",
+    Value = { Min = 0, Max = 100, Default = 50 },
+    Callback = function(value)
+        print("Intensity set to:", value)
+    end
 })
 
-Tabs.ColorPickerTab:Colorpicker({
-    Title = "Transparency Color",
-    Default = Color3.fromRGB(0, 0, 255),
-    Transparency = 0,
-    Callback = function(color) print("Background color: " .. tostring(color)) end
+local modeDropdown = TabHandles.Elements:Dropdown({
+    Title = "Select Mode",
+    Values = { "Standard", "Advanced", "Expert" },
+    Value = "Standard",
+    Callback = function(option)
+        WindUI:Notify({
+            Title = "Mode Changed",
+            Content = "Selected: "..option,
+            Duration = 2
+        })
+    end
 })
 
+TabHandles.Elements:Divider()
 
-Tabs.DialogTab:Button({
-    Title = "Create Example Dialog",
+TabHandles.Elements:Button({
+    Title = "Show Notification",
+    Icon = "bell",
     Callback = function()
-        Window:Dialog({
-            Title = "Example Dialog",
-            Content = "Example Content. lalala",
-            Width = 400,
-            Icon = "bird",
+        WindUI:Notify({
+            Title = "Hello WindUI!",
+            Content = "This is a sample notification",
+            Icon = "bell",
+            Duration = 3
+        })
+    end
+})
+
+TabHandles.Elements:Colorpicker({
+    Title = "Accent Color",
+    Desc = "Change the UI accent color",
+    Default = Color3.fromHex("#6366f1"),
+    Callback = function(color)
+        WindUI:Notify({
+            Title = "Color Changed",
+            Content = "New accent: "..color:ToHex(),
+            Duration = 2
+        })
+    end
+})
+
+TabHandles.Appearance:Paragraph({
+    Title = "Customize Interface",
+    Desc = "Personalize your experience",
+    Image = "palette",
+    ImageSize = 20,
+    Color = "White"
+})
+
+local themes = {}
+for themeName, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themes, themeName)
+end
+table.sort(themes)
+
+local themeDropdown = TabHandles.Appearance:Dropdown({
+    Title = "loc:THEME_SELECT",
+    Values = themes,
+    Value = "Dark",
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+        WindUI:Notify({
+            Title = "Theme Applied",
+            Content = theme,
+            Icon = "palette",
+            Duration = 2
+        })
+    end
+})
+
+local transparencySlider = TabHandles.Appearance:Slider({
+    Title = "loc:TRANSPARENCY",
+    Value = { 
+        Min = 0,
+        Max = 1,
+        Default = 0.2,
+    },
+    Step = 0.1,
+    Callback = function(value)
+        Window:ToggleTransparency(value > 0)
+        WindUI.TransparencyValue = value
+    end
+})
+
+TabHandles.Appearance:Toggle({
+    Title = "Enable Dark Mode",
+    Desc = "Use dark color scheme",
+    Value = true,
+    Callback = function(state)
+        WindUI:SetTheme(state and "Dark" or "Light")
+        themeDropdown:Select(state and "Dark" or "Light")
+    end
+})
+
+TabHandles.Appearance:Button({
+    Title = "Create New Theme",
+    Icon = "plus",
+    Callback = function()
+        WindUI:Dialog({
+            Title = "Create Theme",
+            Content = "This feature is coming soon!",
             Buttons = {
                 {
-                    Title = "LOL!",
-                    Icon = "bird",
-                    Variant = "Tertiary",
-                    Callback = function()
-                        print("lol")
-                    end,
-                },
-                {
-                    Title = "Cool!",
-                    Icon = "bird",
-                    Variant = "Tertiary",
-                    Callback = function()
-                        print("Cool")
-                    end,
-                },
-                {
-                    Title = "Ok!",
-                    Icon = "bird",
-                    Variant = "Secondary",
-                    Callback = function()
-                        print("Ok")
-                    end,
-                },
-                {
-                    Title = "Awesome!",
-                    Icon = "bird",
-                    Variant = "Primary",
-                    Callback = function() 
-                        print("Awesome")
-                    end,
+                    Title = "OK",
+                    Variant = "Primary"
                 }
             }
         })
-    end,
-})
-
-Tabs.DialogTab:Button({
-    Title = "Create Example Dialog 2",
-    Callback = function()
-        Window:Dialog({
-            Title = "Example Dialog 2",
-            Content = "Example Content. lalala",
-            Icon = "rbxassetid://77799629590713",
-            Buttons = {
-                {
-                    Title = "Ok!",
-                    Variant = "Primary",
-                    Callback = function()
-                        print("ok")
-                    end,
-                },
-            }
-        })
-    end,
-})
-
-
-Tabs.NotificationTab:Button({
-    Title = "Click to get Notified",
-    Callback = function() 
-        WindUI:Notify({
-            Title = "Notification Example 1",
-            Content = "Content",
-            Duration = 5,
-        })
     end
 })
 
-Tabs.NotificationTab:Button({
-    Title = "Notification with icon",
-    Callback = function() 
-        WindUI:Notify({
-            Title = "Notification Example 2",
-            Content = "Content",
-            Icon = "droplet-off",
-            Duration = 5,
-        })
+TabHandles.Config:Paragraph({
+    Title = "Configuration Manager",
+    Desc = "Save and load your settings",
+    Image = "save",
+    ImageSize = 20,
+    Color = "White"
+})
+
+local configName = "default"
+local configFile = nil
+local MyPlayerData = {
+    name = "Player1",
+    level = 1,
+    inventory = { "sword", "shield", "potion" }
+}
+
+TabHandles.Config:Input({
+    Title = "Config Name",
+    Value = configName,
+    Callback = function(value)
+        configName = value
     end
 })
 
-Tabs.NotificationTab:Button({
-    Title = "Notification with custom icon",
-    Callback = function() 
-        WindUI:Notify({
-            Title = "Notification Example 2",
-            Content = "Content",
-            Icon = "rbxassetid://77799629590713",
-            IconThemed = true, -- automatic color icon to theme 
-            Duration = 5,
-        })
-    end
-})
-
-Tabs.NotificationTab:Button({
-    Title = "Notification with BackgroundImage",
-    Callback = function() 
-        WindUI:Notify({
-            Title = "Notification Example 3",
-            Content = "with BackgroundImage",
-            Icon = "image",
-            Duration = 5,
-            Background = "rbxassetid://13511292247"
-        })
-    end
-})
-
-
-Tabs.ToggleTab:Toggle({
-    Title = "Enable Feature",
-    --Image = "bird",
-    Value = true,
-    Callback = function(state) print("Feature enabled: " .. tostring(state)) end
-})
-
-Tabs.ToggleTab:Toggle({
-    Title = "Activate Mode",
-    Value = false,
-    Callback = function(state) print("Mode activated: " .. tostring(state)) end
-})
-Tabs.ToggleTab:Toggle({
-    Title = "Toggle with icon",
-    Icon = "check",
-    Value = false,
-    Callback = function(state) print("Toggle with icon activated: " .. tostring(state)) end
-})
-
-Tabs.ToggleTab:Toggle({
-    Title = "New Toggle Type 'Checkbox'",
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(state) print("'Checkbox' Toggle activated: " .. tostring(state)) end
-})
-Tabs.ToggleTab:Toggle({
-    Title = "New Toggle Type 'Checkbox' with custom icon",
-    Icon = "bird",
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(state) print("'Checkbox' Toggle with icon activated: " .. tostring(state)) end
-})
-
-
-Tabs.SliderTab:Slider({
-    Title = "Volume Slider",
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 50,
-    },
-    Callback = function(value) print("Volume set to: " .. value) end
-})
-
-Tabs.SliderTab:Slider({
-    Title = "Brightness Slider",
-    Value = {
-        Min = 1,
-        Max = 100,
-        Default = 75,
-    },
-    Callback = function(value) print("Brightness set to: " .. value) end
-})
-
-Tabs.SliderTab:Slider({
-    Title = "Float Slider",
-    Step = 0.1,
-    Value = {
-        Min = 0,
-        Max = 2.5,
-        Default = 1.5,
-    },
-    Callback = function(value) print("Brightness set to: " .. value) end
-})
-
-
-Tabs.InputTab:Input({
-    Title = "Username",
-    Value = "Guest",
-    Placeholder = "Enter your username",
-    Callback = function(input) print("Username: " .. input) end
-})
-
-Tabs.InputTab:Input({
-    Title = "Password",
-    Value = "",
-    Placeholder = "Enter your password",
-    Callback = function(input) print("Password entered.") end
-})
-
-
-Tabs.InputTab:Input({
-    Title = "Input with icon",
-    Value = "pisun",
-    InputIcon = "bird",
-    Placeholder = "Enter pisun",
-    Callback = function(input) print("pisun entered.") end
-})
-
-
-Tabs.InputTab:Input({
-    Title = "Comment",
-    Value = "",
-    Type = "Textarea", -- or Input
-    Placeholder = "Leave a comment",
-    Callback = function(input) 
-        print("Comment entered: " .. input)
-    end
-})
-
-Tabs.InputTab:Input({
-    Title = "Comment with icon",
-    Desc = "hmmmm",
-    Value = "pisun",
-    InputIcon = "bird",
-    Type = "Textarea", -- or Input
-    Placeholder = "Leave a pisun",
-    Callback = function(input) 
-        print("Pisun entered: " .. input)
-    end
-})
-
-
-Tabs.KeybindTab:Keybind({
-    Title = "Keybind Example",
-    Desc = "Keybind to open ui",
-    Value = "G",
-    Callback = function(v)
-        Window:SetToggleKey(Enum.KeyCode[v])
-    end
-})
-
-
-Tabs.DropdownTab:Dropdown({
-    Title = "Select an Option",
-    Values = { "Option 1", "Option 2", "Option 3", "Option 4" },
-    Value = "Option 1",
-    MenuWidth = 360,
-    Callback = function(option) print("Selected: " .. option) end
-})
-
-local superdropdown
-
-superdropdown = Tabs.DropdownTab:Dropdown({
-    Title = "You cant select.",
-    Values = { "Option 1", "Option 2", "Option 3" },
-    Value = nil,
-    AllowNone = true,
-    Callback = function(option)
-        superdropdown:Select()
-    end
-})
-
-Tabs.DropdownTab:Dropdown({
-    Title = "Choose a Category (Multi)",
-    Values = { "Category A", "Category B", "Category C" },
-    Value = { "Category A" },
-    Multi = true,
-    AllowNone = true,
-    Callback = function(option) 
-        print("Categories selected: " .. game:GetService("HttpService"):JSONEncode(option)) 
-    end
-})
-Tabs.DropdownTab:Dropdown({
-    Title = "Big Dropdown",
-    Values = { "Lllllllloooooooonnnnnggggggggg Tab", 
-               "Hi",
-             },
-    --Value = { "" },
-    Multi = true,
-    AllowNone = true,
-    Callback = function(option) 
-        print("Pisun selected: " .. game:GetService("HttpService"):JSONEncode(option)) 
-    end
-})
-
-
-
--- Configuration
--- Optional
-
-
-local HttpService = game:GetService("HttpService")
-
-local folderPath = "WindUI"
-makefolder(folderPath)
-
-local function SaveFile(fileName, data)
-    local filePath = folderPath .. "/" .. fileName .. ".json"
-    local jsonData = HttpService:JSONEncode(data)
-    writefile(filePath, jsonData)
-end
-
-local function LoadFile(fileName)
-    local filePath = folderPath .. "/" .. fileName .. ".json"
-    if isfile(filePath) then
-        local jsonData = readfile(filePath)
-        return HttpService:JSONDecode(jsonData)
-    end
-end
-
-local function ListFiles()
-    local files = {}
-    for _, file in ipairs(listfiles(folderPath)) do
-        local fileName = file:match("([^/]+)%.json$")
-        if fileName then
-            table.insert(files, fileName)
-        end
-    end
-    return files
-end
-
-Tabs.WindowTab:Section({ Title = "Window", Icon = "app-window-mac" })
-
-local themeValues = {}
-for name, _ in pairs(WindUI:GetThemes()) do
-    table.insert(themeValues, name)
-end
-
-local themeDropdown = Tabs.WindowTab:Dropdown({
-    Title = "Select Theme",
-    Multi = false,
-    AllowNone = false,
-    Value = nil,
-    Values = themeValues,
-    Callback = function(theme)
-        WindUI:SetTheme(theme)
-    end
-})
-themeDropdown:Select(WindUI:GetCurrentTheme())
-
-local ToggleTransparency = Tabs.WindowTab:Toggle({
-    Title = "Toggle Window Transparency",
-    Callback = function(e)
-        Window:ToggleTransparency(e)
-    end,
-    Value = WindUI:GetTransparency()
-})
-
-Tabs.WindowTab:Section({ Title = "Save" })
-
-local fileNameInput = ""
-Tabs.WindowTab:Input({
-    Title = "Write File Name",
-    PlaceholderText = "Enter file name",
-    Callback = function(text)
-        fileNameInput = text
-    end
-})
-
-Tabs.WindowTab:Button({
-    Title = "Save File",
-    Callback = function()
-        if fileNameInput ~= "" then
-            SaveFile(fileNameInput, { Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
-        end
-    end
-})
-
-Tabs.WindowTab:Section({ Title = "Load" })
-
-local filesDropdown
-local files = ListFiles()
-
-filesDropdown = Tabs.WindowTab:Dropdown({
-    Title = "Select File",
-    Multi = false,
-    AllowNone = true,
-    Values = files,
-    Callback = function(selectedFile)
-        fileNameInput = selectedFile
-    end
-})
-
-Tabs.WindowTab:Button({
-    Title = "Load File",
-    Callback = function()
-        if fileNameInput ~= "" then
-            local data = LoadFile(fileNameInput)
-            if data then
-                WindUI:Notify({
-                    Title = "File Loaded",
-                    Content = "Loaded data: " .. HttpService:JSONEncode(data),
-                    Duration = 5,
+local ConfigManager = Window.ConfigManager
+if ConfigManager then
+    ConfigManager:Init(Window)
+    
+    TabHandles.Config:Button({
+        Title = "loc:SAVE_CONFIG",
+        Icon = "save",
+        Variant = "Primary",
+        Callback = function()
+            configFile = ConfigManager:CreateConfig(configName)
+            
+            configFile:Register("featureToggle", featureToggle)
+            configFile:Register("intensitySlider", intensitySlider)
+            configFile:Register("modeDropdown", modeDropdown)
+            configFile:Register("themeDropdown", themeDropdown)
+            configFile:Register("transparencySlider", transparencySlider)
+            
+            configFile:Set("playerData", MyPlayerData)
+            configFile:Set("lastSave", os.date("%Y-%m-%d %H:%M:%S"))
+            
+            if configFile:Save() then
+                WindUI:Notify({ 
+                    Title = "loc:SAVE_CONFIG", 
+                    Content = "Saved as: "..configName,
+                    Icon = "check",
+                    Duration = 3
                 })
-                if data.Transparent then 
-                    Window:ToggleTransparency(data.Transparent)
-                    ToggleTransparency:SetValue(data.Transparent)
-                end
-                if data.Theme then WindUI:SetTheme(data.Theme) end
+            else
+                WindUI:Notify({ 
+                    Title = "Error", 
+                    Content = "Failed to save config",
+                    Icon = "x",
+                    Duration = 3
+                })
             end
         end
-    end
-})
-
-Tabs.WindowTab:Button({
-    Title = "Overwrite File",
-    Callback = function()
-        if fileNameInput ~= "" then
-            SaveFile(fileNameInput, { Transparent = WindUI:GetTransparency(), Theme = WindUI:GetCurrentTheme() })
-        end
-    end
-})
-
-Tabs.WindowTab:Button({
-    Title = "Refresh List",
-    Callback = function()
-        filesDropdown:Refresh(ListFiles())
-    end
-})
-
-local currentThemeName = WindUI:GetCurrentTheme()
-local themes = WindUI:GetThemes()
-
-local ThemeAccent = themes[currentThemeName].Accent
-local ThemeOutline = themes[currentThemeName].Outline
-local ThemeText = themes[currentThemeName].Text
-local ThemePlaceholderText = themes[currentThemeName].Placeholder
-
-function updateTheme()
-    WindUI:AddTheme({
-        Name = currentThemeName,
-        Accent = ThemeAccent,
-        Outline = ThemeOutline,
-        Text = ThemeText,
-        Placeholder = ThemePlaceholderText
-    })
-    WindUI:SetTheme(currentThemeName)
-end
-
-local CreateInput = Tabs.CreateThemeTab:Input({
-    Title = "Theme Name",
-    Value = currentThemeName,
-    Callback = function(name)
-        currentThemeName = name
-    end
-})
-
-Tabs.CreateThemeTab:Colorpicker({
-    Title = "Background Color",
-    Default = Color3.fromHex(ThemeAccent),
-    Callback = function(color)
-        ThemeAccent = color:ToHex()
-    end
-})
-
-Tabs.CreateThemeTab:Colorpicker({
-    Title = "Outline Color",
-    Default = Color3.fromHex(ThemeOutline),
-    Callback = function(color)
-        ThemeOutline = color:ToHex()
-    end
-})
-
-Tabs.CreateThemeTab:Colorpicker({
-    Title = "Text Color",
-    Default = Color3.fromHex(ThemeText),
-    Callback = function(color)
-        ThemeText = color:ToHex()
-    end
-})
-
-Tabs.CreateThemeTab:Colorpicker({
-    Title = "Placeholder Text Color",
-    Default = Color3.fromHex(ThemePlaceholderText),
-    Callback = function(color)
-        ThemePlaceholderText = color:ToHex()
-    end
-})
-
-Tabs.CreateThemeTab:Button({
-    Title = "Update Theme",
-    Callback = function()
-        updateTheme()
-    end
-})
-
-local InviteCode = "ApbHXtAwU2"
-local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
-
-local Response = game:GetService("HttpService"):JSONDecode(WindUI.Creator.Request({
-    Url = DiscordAPI,
-    Method = "GET",
-    Headers = {
-        ["User-Agent"] = "RobloxBot/1.0",
-        ["Accept"] = "application/json"
-    }
-}).Body)
-
-if Response and Response.guild then
-    local DiscordInfo = Tabs.Tests:Paragraph({
-        Title = Response.guild.name,
-        Desc = 
-            ' <font color="#52525b">•</font> Member Count : ' .. tostring(Response.approximate_member_count) .. 
-            '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(Response.approximate_presence_count)
-        ,
-        Image = "https://cdn.discordapp.com/icons/" .. Response.guild.id .. "/" .. Response.guild.icon .. ".png?size=1024",
-        ImageSize = 42,
     })
 
-    Tabs.Tests:Button({
-        Title = "Update Info",
-        --Image = "refresh-ccw",
+    TabHandles.Config:Button({
+        Title = "loc:LOAD_CONFIG",
+        Icon = "folder",
         Callback = function()
-            local UpdatedResponse = game:GetService("HttpService"):JSONDecode(WindUI.Creator.Request({
-                Url = DiscordAPI,
-                Method = "GET",
-            }).Body)
+            configFile = ConfigManager:CreateConfig(configName)
+            local loadedData = configFile:Load()
             
-            if UpdatedResponse and UpdatedResponse and UpdatedResponse.guild then
-                DiscordInfo:SetDesc(
-                    ' <font color="#52525b">•</font> Member Count : ' .. tostring(UpdatedResponse.approximate_member_count) .. 
-                    '\n <font color="#16a34a">•</font> Online Count : ' .. tostring(UpdatedResponse.approximate_presence_count)
-                )
+            if loadedData then
+                if loadedData.playerData then
+                    MyPlayerData = loadedData.playerData
+                end
+                
+                local lastSave = loadedData.lastSave or "Unknown"
+                WindUI:Notify({ 
+                    Title = "loc:LOAD_CONFIG", 
+                    Content = "Loaded: "..configName.."\nLast save: "..lastSave,
+                    Icon = "refresh-cw",
+                    Duration = 5
+                })
+                
+                TabHandles.Config:Paragraph({
+                    Title = "Player Data",
+                    Desc = string.format("Name: %s\nLevel: %d\nInventory: %s", 
+                        MyPlayerData.name, 
+                        MyPlayerData.level, 
+                        table.concat(MyPlayerData.inventory, ", "))
+                })
+            else
+                WindUI:Notify({ 
+                    Title = "Error", 
+                    Content = "Failed to load config",
+                    Icon = "x",
+                    Duration = 3
+                })
             end
         end
     })
 else
-    Tabs.Tests:Paragraph({
-        Title = "Error when receiving information about the Discord server",
-        Desc = game:GetService("HttpService"):JSONEncode(Response),
-        Image = "triangle-alert",
-        ImageSize = 26,
-        Color = "Red",
+    TabHandles.Config:Paragraph({
+        Title = "Config Manager Not Available",
+        Desc = "This feature requires ConfigManager",
+        Image = "alert-triangle",
+        ImageSize = 20,
+        Color = "White"
     })
 end
 
 
-
-local function parseJSON(luau_table, indent, level, visited)
-    indent = indent or 2
-    level = level or 0
-    visited = visited or {}
-    
-    local currentIndent = string.rep(" ", level * indent)
-    local nextIndent = string.rep(" ", (level + 1) * indent)
-    
-    if luau_table == nil then
-        return "null"
-    end
-    
-    local dataType = type(luau_table)
-    
-    if dataType == "table" then
-        if visited[luau_table] then
-            return "\"[Circular Reference]\""
-        end
-        
-        visited[luau_table] = true
-        
-        local isArray = true
-        local maxIndex = 0
-        
-        for k, _ in pairs(luau_table) do
-            if type(k) == "number" and k > maxIndex then
-                maxIndex = k
+local footerSection = Window:Section({ Title = "WindUI " .. WindUI.Version })
+TabHandles.Config:Paragraph({
+    Title = "Created with ❤️",
+    Desc = "github.com/Footagesus/WindUI",
+    Image = "github",
+    ImageSize = 20,
+    Color = "Grey",
+    Buttons = {
+        {
+            Title = "Copy Link",
+            Icon = "copy",
+            Variant = "Tertiary",
+            Callback = function()
+                setclipboard("https://github.com/Footagesus/WindUI")
+                WindUI:Notify({
+                    Title = "Copied!",
+                    Content = "GitHub link copied to clipboard",
+                    Duration = 2
+                })
             end
-            if type(k) ~= "number" or k <= 0 or math.floor(k) ~= k then
-                isArray = false
-                break
-            end
-        end
-        
-        local count = 0
-        for _ in pairs(luau_table) do
-            count = count + 1
-        end
-        if count ~= maxIndex and isArray then
-            isArray = false
-        end
-        
-        if count == 0 then
-            return "{}"
-        end
-        
-        if isArray then
-            if count == 0 then
-                return "[]"
-            end
-            
-            local result = "[\n"
-            
-            for i = 1, maxIndex do
-                result = result .. nextIndent .. parseJSON(luau_table[i], indent, level + 1, visited)
-                if i < maxIndex then
-                    result = result .. ","
-                end
-                result = result .. "\n"
-            end
-            
-            result = result .. currentIndent .. "]"
-            return result
-        else
-            local result = "{\n"
-            local first = true
-            
-            local keys = {}
-            for k in pairs(luau_table) do
-                table.insert(keys, k)
-            end
-            table.sort(keys, function(a, b)
-                if type(a) == type(b) then
-                    return tostring(a) < tostring(b)
-                else
-                    return type(a) < type(b)
-                end
-            end)
-            
-            for _, k in ipairs(keys) do
-                local v = luau_table[k]
-                if not first then
-                    result = result .. ",\n"
-                else
-                    first = false
-                end
-                
-                if type(k) == "string" then
-                    result = result .. nextIndent .. "\"" .. k .. "\": "
-                else
-                    result = result .. nextIndent .. "\"" .. tostring(k) .. "\": "
-                end
-                
-                result = result .. parseJSON(v, indent, level + 1, visited)
-            end
-            
-            result = result .. "\n" .. currentIndent .. "}"
-            return result
-        end
-    elseif dataType == "string" then
-        local escaped = luau_table:gsub("\\", "\\\\")
-        escaped = escaped:gsub("\"", "\\\"")
-        escaped = escaped:gsub("\n", "\\n")
-        escaped = escaped:gsub("\r", "\\r")
-        escaped = escaped:gsub("\t", "\\t")
-        
-        return "\"" .. escaped .. "\""
-    elseif dataType == "number" then
-        return tostring(luau_table)
-    elseif dataType == "boolean" then
-        return luau_table and "true" or "false"
-    elseif dataType == "function" then
-        return "\"function\""
-    else
-        return "\"" .. dataType .. "\""
-    end
-end
-
-local function tableToClipboard(luau_table, indent)
-    indent = indent or 4
-    local jsonString = parseJSON(luau_table, indent)
-    setclipboard(jsonString)
-    return jsonString
-end
-
-Tabs.Tests:Section({
-    Title = "Get WindUI JSON"
+        }
+    }
 })
-
-Tabs.Tests:Button({
-    Title = "Get WindUI JSON",
-    Callback = function()
-        tableToClipboard(WindUI)
-    end
-})
-
-
-
-
--- Configs
-
-
-local ToggleElement = Tabs.ConfigTab:Toggle({
-    Title = "Toggle",
-    Desc = "Config Test Toggle",
-    Callback = function(v) print("Toggle Changed: " .. tostring(v)) end
-})
-
-local SliderElement = Tabs.ConfigTab:Slider({
-    Title = "Slider",
-    Desc = "Config Test Slider",
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 50,
-    },
-    Callback = function(v) print("Slider Changed: " .. v) end
-})
-
-local KeybindElement = Tabs.ConfigTab:Keybind({
-    Title = "Keybind",
-    Desc = "Config Test Keybind",
-    Value = "F",
-    Callback = function(v) print("Keybind Changed/Clicked: " .. v) end
-})
-
-local DropdownElement = Tabs.ConfigTab:Dropdown({
-    Title = "Dropdown",
-    Desc = "Config Test Dropdown",
-    Values = { "Test 1", "Test 2" },
-    Value = "Test 1",
-    Callback = function(v) print("Dropdown Changed: " .. HttpService:JSONEncode(v)) end
-})
-
-local InputElement = Tabs.ConfigTab:Input({
-    Title = "Input",
-    Desc = "Config Test Input",
-    Value = "Test",
-    Placeholder = "Enter text.......",
-    Callback = function(v) print("Input Changed: " .. v) end
-})
-
-local ColorpickerElement = Tabs.ConfigTab:Colorpicker({
-    Title = "Colorpicker",
-    Desc = "Config Test Colorpicker",
-    Default = Color3.fromHex("#315dff"),
-    Transparency = 0, -- Transparency enabled
-    Callback = function(c,t) print("Colorpicker Changed: " .. c:ToHex() .. "\nTransparency: " .. t) end
-})
-
--- Configs
-
-
--- 1. Load ConfigManager
-local ConfigManager = Window.ConfigManager
-
-if ConfigManager then
-    -- 2. Create Config File                    ↓ Config File name
-    local myConfig = ConfigManager:CreateConfig("myConfig")
-    
-    
-    -- 3. Register elements
-    
-    --               | ↓ Element name (no spaces)  | ↓ Element          |
-    myConfig:Register( "toggleNameExample",          ToggleElement      )
-    myConfig:Register( "sliderNameExample",          SliderElement      ) 
-    myConfig:Register( "keybindNameExample",         KeybindElement     )
-    myConfig:Register( "dropdownNameExample",        DropdownElement    )
-    myConfig:Register( "inputNameExample",           InputElement       )
-    myConfig:Register( "ColorpickerNameExample",     ColorpickerElement )
-    
-    
-    -- Save
-    
-    --[[ Saving at 
-        {yourExecutor}
-            /Workspace
-                /WindUI
-                    /{Window.Folder}
-                        /config
-                            /myConfig.json
-                            
-                                           ]]
-                                       
-    -- myConfig:Save()
-    
-    
-    -- Load   
-    
-    -- myConfig:Load()
-    
-    
-    
-    -- Usage:
-    
-    Tabs.ConfigTab:Button({
-        Title = "Save",
-        Desc = "Saves elements to config",
-        Callback = function()
-            myConfig:Save()
-        end
-    })
-    
-    Tabs.ConfigTab:Button({
-        Title = "Load",
-        Desc = "Loads elements from config",
-        Callback = function()
-            myConfig:Load()
-        end
-    })
-    
-    Tabs.ConfigTab:Button({
-        Title = "Print all configs",
-        --Desc = "Prints configs",
-        Callback = function()
-            print(game:GetService("HttpService"):JSONEncode(ConfigManager:AllConfigs()))
-        end
-    })
-    
-end
-    
-    
--- function :OnClose()
 
 Window:OnClose(function()
-    print("UI Closed.")
+    print("Window closed")
+    
+    if ConfigManager and configFile then
+        configFile:Set("playerData", MyPlayerData)
+        configFile:Set("lastSave", os.date("%Y-%m-%d %H:%M:%S"))
+        configFile:Save()
+        print("Config auto-saved on close")
+    end
 end)
 
-
-
--- function :OnDestroy()
-
 Window:OnDestroy(function()
-    print("UI Destroyed.")
+    print("Window destroyed")
 end)

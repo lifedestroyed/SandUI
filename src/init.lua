@@ -2,6 +2,7 @@ local WindUI = {
     Window = nil,
     Theme = nil,
     Creator = require("./modules/Creator"),
+    LocalizationModule = require("./modules/Localization"),
     Themes = require("./themes/init"),
     Transparent = false,
     
@@ -9,7 +10,8 @@ local WindUI = {
     
     UIScale = 1,
     
-    ConfigManager = nil
+    ConfigManager = nil,
+    Version = "1.6.4",
 }
 
 
@@ -76,7 +78,7 @@ ProtectGui(WindUI.DropdownGui)
 
 Creator.Init(WindUI)
 
-math.clamp(WindUI.TransparencyValue, 0, 0.4)
+math.clamp(WindUI.TransparencyValue, 0, 1)
 
 local Notify = require("./components/Notification")
 local Holder = Notify.Init(WindUI.NotificationGui)
@@ -105,14 +107,12 @@ function WindUI:SetTheme(Value)
     if Themes[Value] then
         WindUI.Theme = Themes[Value]
         Creator.SetTheme(Themes[Value])
-        Creator.UpdateTheme()
+        --Creator.UpdateTheme()
         
         return Themes[Value]
     end
     return nil
 end
-
-WindUI:SetTheme("Dark")
 
 function WindUI:GetThemes()
     return Themes
@@ -125,6 +125,57 @@ function WindUI:GetTransparency()
 end
 function WindUI:GetWindowSize()
     return Window.UIElements.Main.Size
+end
+function WindUI:Localization(LocalizationConfig)
+    return WindUI.LocalizationModule:New(LocalizationConfig, Creator)
+end
+
+function WindUI:SetLanguage(Value)
+    if Creator.Localization then
+        return Creator.SetLanguage(Value)
+    end
+    return false
+end
+
+
+WindUI:SetTheme("Dark")
+WindUI:SetLanguage(Creator.Language)
+
+
+function WindUI:Gradient(stops, props)
+    local colorSequence = {}
+    local transparencySequence = {}
+
+    for posStr, stop in next, stops do
+        local position = tonumber(posStr)
+        if position then
+            position = math.clamp(position / 100, 0, 1)
+            table.insert(colorSequence, ColorSequenceKeypoint.new(position, stop.Color))
+            table.insert(transparencySequence, NumberSequenceKeypoint.new(position, stop.Transparency or 0))
+        end
+    end
+
+    table.sort(colorSequence, function(a, b) return a.Time < b.Time end)
+    table.sort(transparencySequence, function(a, b) return a.Time < b.Time end)
+
+
+    if #colorSequence < 2 then
+        error("ColorSequence requires at least 2 keypoints")
+    end
+
+
+    local gradientData = {
+        Color = ColorSequence.new(colorSequence),
+        Transparency = NumberSequence.new(transparencySequence),
+    }
+
+    if props then
+        for k, v in pairs(props) do
+            gradientData[k] = v
+        end
+    end
+
+    return gradientData
 end
 
 

@@ -1,4 +1,4 @@
--- credits: dawid
+-- credits: dawid, extended functionality
 local HttpService = game:GetService("HttpService")
 
 local ConfigManager
@@ -93,7 +93,6 @@ ConfigManager = {
 function ConfigManager:Init(Window)
     if not Window.Folder then
         warn("[ WindUI.ConfigManager ] Window.Folder is not specified.")
-        
         return false
     end
     
@@ -101,14 +100,25 @@ function ConfigManager:Init(Window)
     ConfigManager.Folder = Window.Folder
     ConfigManager.Path = "WindUI/" .. tostring(ConfigManager.Folder) .. "/config/"
 
+    
+    local files = ConfigManager:AllConfigs()
+    
+    for _, f in next, files do
+        if isfile(f .. ".json") then
+            ConfigManager.Configs[f] = readfile(f .. ".json")
+        end
+    end
+
+    
     return ConfigManager
 end
 
 function ConfigManager:CreateConfig(configFilename)
     local ConfigModule = {
         Path = ConfigManager.Path .. configFilename .. ".json",
-        
-        Elements = {}
+        Elements = {},
+        CustomData = {},
+        Version = 1.1 -- Current config version
     }
     
     if not configFilename then
@@ -119,28 +129,54 @@ function ConfigManager:CreateConfig(configFilename)
         ConfigModule.Elements[Name] = Element
     end
     
+    function ConfigModule:Set(key, value)
+        ConfigModule.CustomData[key] = value
+    end
+    
+    function ConfigModule:Get(key)
+        return ConfigModule.CustomData[key]
+    end
+    
     function ConfigModule:Save()
         local saveData = {
-            Elements = {}
+            __version = ConfigModule.Version,
+            __elements = {},
+            __custom = ConfigModule.CustomData
         }
         
-        for name,i in next, ConfigModule.Elements do
-            if ConfigManager.Parser[i.__type] then
-                saveData.Elements[tostring(name)] = ConfigManager.Parser[i.__type].Save(i)
+        for name, element in next, ConfigModule.Elements do
+            if ConfigManager.Parser[element.__type] then
+                saveData.__elements[tostring(name)] = ConfigManager.Parser[element.__type].Save(element)
             end
         end
         
-        print(HttpService:JSONEncode(saveData))
-        
-        writefile(ConfigModule.Path, HttpService:JSONEncode(saveData))
+        local jsonData = HttpService:JSONEncode(saveData)
+        writefile(ConfigModule.Path, jsonData)
     end
     
     function ConfigModule:Load()
-        if not isfile(ConfigModule.Path) then return false, "Invalid file" end
+        if not isfile(ConfigModule.Path) then 
+            return false, "Config file does not exist" 
+        end
         
-        local loadData = HttpService:JSONDecode(readfile(ConfigModule.Path))
+        local success, loadData = pcall(function()
+            return HttpService:JSONDecode(readfile(ConfigModule.Path))
+        end)
         
-        for name, data in next, loadData.Elements do
+        if not success then
+            return false, "Failed to parse config file"
+        end
+        
+        if not loadData.__version then
+            local migratedData = {
+                __version = ConfigModule.Version,
+                __elements = loadData,
+                __custom = {}
+            }
+            loadData = migratedData
+        end
+        
+        for name, data in next, (loadData.__elements or {}) do
             if ConfigModule.Elements[name] and ConfigManager.Parser[data.__type] then
                 task.spawn(function()
                     ConfigManager.Parser[data.__type].Load(ConfigModule.Elements[name], data)
@@ -148,27 +184,43 @@ function ConfigManager:CreateConfig(configFilename)
             end
         end
         
+        ConfigModule.CustomData = loadData.__custom or {}
+        
+        return ConfigModule.CustomData
     end
     
+    function ConfigModule:GetData()
+        return {
+            elements = ConfigModule.Elements,
+            custom = ConfigModule.CustomData
+        }
+    end
     
     ConfigManager.Configs[configFilename] = ConfigModule
-    
     return ConfigModule
 end
 
 function ConfigManager:AllConfigs()
-    if listfiles then
-        local files = {}
-        for _, file in next, listfiles(ConfigManager.Path) do
-            local name = file:match("([^\\/]+)%.json$")
-            if name then
-                table.insert(files, name)
-            end
-        end
-        
+    if not listfiles then return {} end
+    
+    local files = {}
+    if not isfolder(ConfigManager.Path) then
+        makefolder(ConfigManager.Path)
         return files
     end
-    return false
+    
+    for _, file in next, listfiles(ConfigManager.Path) do
+        local name = file:match("([^\\/]+)%.json$")
+        if name then
+            table.insert(files, name)
+        end
+    end
+    
+    return files
+end
+
+function ConfigManager:GetConfig(configName)
+    return ConfigManager.Configs[configName]
 end
 
 return ConfigManager

@@ -220,6 +220,7 @@ function OpenButton.New(Window)
         if Title then
             if OpenButtonModule.Title then
                 Title.Text = OpenButtonModule.Title
+                Creator:ChangeTranslationKey(Title, OpenButtonModule.Title)
             elseif OpenButtonModule.Title == nil then
                 --Title.Visible = false
             end

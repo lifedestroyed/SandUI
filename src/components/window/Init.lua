@@ -12,6 +12,7 @@ local Tween = Creator.Tween
 local CreateLabel = require("../ui/Label").New
 local CreateButton = require("../ui/Button").New
 local CreateScrollSlider = require("../ui/ScrollSlider").New
+local Tag = require("../ui/Tag")
 
 local ConfigManager = require("../../config/Init")
 
@@ -383,6 +384,64 @@ return function(Config)
     local Outline2
     
     
+    
+    local IsVideoBG = false
+    local BGImage = nil
+    
+    local BGVideo = typeof(Window.Background) == "string" and string.match(Window.Background, "^video:(.+)") or nil
+    
+    if typeof(Window.Background) == "string" and BGVideo then
+        IsVideoBG = true
+        
+        if string.find(BGVideo, "http") then
+            local function SanitizeFilename(str)
+                str = str:gsub("[%s/\\:*?\"<>|]+", "-")
+                str = str:gsub("[^%w%-_%.]", "")
+                return str
+            end
+
+            local videoPath = Window.Folder .. "/Assets/." .. SanitizeFilename(BGVideo) .. ".webm"
+            if not isfile(videoPath) then
+                local success, result = pcall(function()
+                    local response = game:HttpGet(BGVideo)
+                    writefile(videoPath, response)
+                end)
+            
+                if not success then
+                    warn("[ WindUI.Background ]  Failed to download video: " .. tostring(result))
+                    return
+                end
+            end
+            BGVideo = getcustomasset(videoPath)
+        end
+        
+        BGImage = New("VideoFrame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1,0,1,0),
+            Video = BGVideo,
+            Looped = true,
+            Volume = 0,
+        }, {
+            New("UICorner", {
+                CornerRadius = UDim.new(0,Window.UICorner)
+            }),
+        })
+        BGImage:Play()
+    elseif Window.Background then
+        BGImage = New("ImageLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1,0,1,0),
+            Image = typeof(Window.Background) == "string" and Window.Background or "",
+            ImageTransparency = 1,
+            ScaleType = "Crop",
+        }, {
+            New("UICorner", {
+                CornerRadius = UDim.new(0,Window.UICorner)
+            }),
+        })
+    end
+    
+    
     local BottomDragFrame = Creator.NewRoundFrame(99, "Squircle", {
         ImageTransparency = .8,
         ImageColor3 = Color3.new(1,1,1),
@@ -433,17 +492,7 @@ return function(Config)
             },
             --ZIndex = -9999,
         }, {
-            New("ImageLabel", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1,0,1,0),
-                Image = Window.Background,
-                ImageTransparency = 1,
-                ScaleType = "Crop",
-            }, {
-                New("UICorner", {
-                    CornerRadius = UDim.new(0,Window.UICorner)
-                }),
-            }),
+            BGImage,
             BottomDragFrame,
             ResizeHandle,
             -- New("UIScale", {
@@ -515,6 +564,25 @@ return function(Config)
                         PaddingLeft = UDim.new(0,4)
                     })
                 }),
+                New("ScrollingFrame", { -- Topbar Center Size 
+                    Name = "Center",
+                    BackgroundTransparency = 1,
+                    AutomaticSize = "Y",
+                    ScrollBarThickness = 0,
+                    ScrollingDirection = "X",
+                    AutomaticCanvasSize = "X",
+                    CanvasSize = UDim2.new(0,0,0,0),
+                    Size = UDim2.new(0,0,1,0),
+                    AnchorPoint = Vector2.new(0,0.5),
+                    Position = UDim2.new(0,0,0.5,0),
+                }, {
+                    New("UIListLayout", {
+                        FillDirection = "Horizontal",
+                        VerticalAlignment = "Center",
+                        HorizontalAlignment = "Left",
+                        Padding = UDim.new(0,Window.UIPadding/2)
+                    })
+                }),
                 New("Frame", { -- Topbar Right Side -- Window.UIElements.Main.Main.Topbar.Right
                     AutomaticSize = "XY",
                     BackgroundTransparency = 1,
@@ -538,7 +606,16 @@ return function(Config)
             })
         })
     })
-
+    
+    Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()
+        Window.UIElements.Main.Main.Topbar.Center.Position = UDim2.new(0,Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X + Window.UIPadding,0.5,0)
+        Window.UIElements.Main.Main.Topbar.Center.Size = UDim2.new(
+            1,
+            - Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X - Window.UIElements.Main.Main.Topbar.Right.AbsoluteSize.X - Window.UIPadding - Window.UIPadding,
+            1,
+            0
+        )
+    end)
     
     function Window:CreateTopbarButton(Name, Icon, Callback, LayoutOrder, IconThemed)
         local IconFrame = Creator.Image(
@@ -629,6 +706,22 @@ return function(Config)
             end
         end
     )
+    
+    if not IsVideoBG and Window.Background and typeof(Window.Background) == "table" then
+        
+        local BackgroundGradient = New("UIGradient")
+        for key, value in next, Window.Background do
+            BackgroundGradient[key] = value
+        end
+        
+        Window.UIElements.BackgroundGradient = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
+            Size = UDim2.new(1,0,1,0),
+            Parent = Window.UIElements.Main.Background,
+            ImageTransparency = Window.Transparent and Config.WindUI.TransparencyValue or 0
+        }, {
+            BackgroundGradient
+        })
+    end
     
     -- local blur = require("../Blur")
     
@@ -754,20 +847,20 @@ return function(Config)
             end
         end)
         
-        local NotifiedText = IsPC and "Press " .. Window.ToggleKey.Name .. " to open the Window" or "Click the Button to open the Window"
+        -- local NotifiedText = IsPC and "Press " .. Window.ToggleKey.Name .. " to open the Window" or "Click the Button to open the Window"
         
-        if not Window.IsOpenButtonEnabled then
-            Notified = true
-        end
-        if not Notified then
-            Notified = not Notified
-            Config.WindUI:Notify({
-                Title = "Minimize",
-                Content = "You've closed the Window. " .. NotifiedText,
-                Icon = "eye-off",
-                Duration = 5,
-            })
-        end
+        -- if not Window.IsOpenButtonEnabled then
+        --     Notified = true
+        -- end
+        -- if not Notified then
+        --     Notified = not Notified
+        --     Config.WindUI:Notify({
+        --         Title = "Minimize",
+        --         Content = "You've closed the Window. " .. NotifiedText,
+        --         Icon = "eye-off",
+        --         Duration = 5,
+        --     })
+        -- end
     end, 997)
     
     function Window:OnClose(func)
@@ -785,12 +878,24 @@ return function(Config)
             Tween(Window.UIElements.Main.Background, 0.2, {
                 ImageTransparency = Window.Transparent and Config.WindUI.TransparencyValue or 0,
             }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-        
+            
+            if Window.UIElements.BackgroundGradient then
+                Tween(Window.UIElements.BackgroundGradient, 0.2, {
+                    ImageTransparency = 0,
+                }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+            end
+            
             Tween(Window.UIElements.Main.Background, 0.4, {
                 Size = UDim2.new(1,0,1,0),
             }, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
         
-            Tween(Window.UIElements.Main.Background.ImageLabel, 0.2, {ImageTransparency = Window.BackgroundImageTransparency}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+            if BGImage then
+                Tween(BGImage, 0.2, {
+                    ImageTransparency = BGImage:IsA("ImageLabel") and 0 or nil,
+                    BackgroundTransparency = BGImage:IsA("VideoFrame") and 0 or nil,
+                }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+            end            
+            
             --Tween(Window.UIElements.Main.Background.UIScale, 0.2, {Scale = 1}, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
             Tween(Blur, 0.25, {ImageTransparency = .7}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
             if UIStroke then
@@ -800,8 +905,8 @@ return function(Config)
             task.spawn(function()
                 task.wait(.5)
                 Tween(BottomDragFrame, .45, {Size = UDim2.new(0,200,0,4), ImageTransparency = .8}, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
-                task.wait(.45)
                 WindowDragModule:Set(true)
+                task.wait(.45)
                 if Window.Resizable then
                     Tween(ResizeHandle.ImageLabel, .45, {ImageTransparency = .8}, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
                     Window.CanResize = true
@@ -814,7 +919,10 @@ return function(Config)
             Window.UIElements.Main.Visible = true
             task.spawn(function()
                 task.wait(.05)
-                Window.UIElements.Main.Main.Visible = true
+                Window.UIElements.Main:WaitForChild("Main").Visible = true
+                if BGImage:IsA("VideoFrame") then
+                    BGImage.Visible = true
+                end
             end)
         end)
     end
@@ -827,20 +935,34 @@ return function(Config)
             end)
         end
         
-        Window.UIElements.Main.Main.Visible = false
+        Window.UIElements.Main:WaitForChild("Main").Visible = false
+        
+        if BGImage:IsA("VideoFrame") then
+            BGImage.Visible = false
+        end
         Window.CanDropdown = false
         Window.Closed = true
         
         Tween(Window.UIElements.Main.Background, 0.32, {
             ImageTransparency = 1,
         }, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut):Play()
-    
+        if Window.UIElements.BackgroundGradient then
+            Tween(Window.UIElements.BackgroundGradient, 0.32, {
+                ImageTransparency = 1,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut):Play()
+        end
+        
         Tween(Window.UIElements.Main.Background, 0.4, {
             Size = UDim2.new(1,0,1,-240),
         }, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut):Play()
     
         --Tween(Window.UIElements.Main.Background.UIScale, 0.19, {Scale = .95}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-        Tween(Window.UIElements.Main.Background.ImageLabel, 0.2, {ImageTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        if BGImage then
+            Tween(BGImage, 0.2, {
+                ImageTransparency = BGImage:IsA("ImageLabel") and 1 or nil,
+                --BackgroundTransparency = BGImage:IsA("VideoFrame") and 1 or nil,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        end
         Tween(Blur, 0.25, {ImageTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
         if UIStroke then
             Tween(UIStroke, 0.25, {Transparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
@@ -1159,6 +1281,7 @@ return function(Config)
         return Dialog
     end
     
+    
     Window:CreateTopbarButton("Close", "x", function()
         Tween(Window.UIElements.Main, 0.35, {Position = UDim2.new(0.5,0,0.5,0)}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
         Window:Dialog({
@@ -1182,6 +1305,9 @@ return function(Config)
         })
     end, 999)
     
+    function Window:Tag(TagConfig)
+        return Tag:New(TagConfig, Window.UIElements.Main.Main.Topbar.Center)
+    end
 
     local function startResizing(input)
         if Window.CanResize then

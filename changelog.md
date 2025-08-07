@@ -1,4 +1,7 @@
-# 1.6.32
+# 1.6.4
 ## Changelog:
-- Fix dropdown
-- Fix some bugs
+- Background Gradients
+- Localizations (Translator)
+- Video Background 
+- UI Tags
+- Custom Data Support in Config Manager
