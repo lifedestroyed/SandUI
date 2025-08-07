@@ -272,8 +272,8 @@ local transparencySlider = TabHandles.Appearance:Slider({
     },
     Step = 0.1,
     Callback = function(value)
-        Window:ToggleTransparency(value > 0)
-        WindUI.TransparencyValue = value
+        Window:ToggleTransparency(tonumber(value) > 0)
+        WindUI.TransparencyValue = tonumber(value)
     end
 })
 

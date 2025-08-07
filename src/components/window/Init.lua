@@ -890,9 +890,12 @@ return function(Config)
             }, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
         
             if BGImage then
+                if BGImage:IsA("VideoFrame") then
+                    BGImage.Visible = true
+                end
                 Tween(BGImage, 0.2, {
                     ImageTransparency = BGImage:IsA("ImageLabel") and 0 or nil,
-                    BackgroundTransparency = BGImage:IsA("VideoFrame") and 0 or nil,
+                    --BackgroundTransparency = BGImage:IsA("VideoFrame") and 0 or nil,
                 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
             end            
             
@@ -920,9 +923,6 @@ return function(Config)
             task.spawn(function()
                 task.wait(.05)
                 Window.UIElements.Main:WaitForChild("Main").Visible = true
-                if BGImage and BGImage:IsA("VideoFrame") then
-                    BGImage.Visible = true
-                end
             end)
         end)
     end
@@ -937,9 +937,6 @@ return function(Config)
         
         Window.UIElements.Main:WaitForChild("Main").Visible = false
         
-        if BGImage and BGImage:IsA("VideoFrame") then
-            BGImage.Visible = false
-        end
         Window.CanDropdown = false
         Window.Closed = true
         
@@ -958,6 +955,9 @@ return function(Config)
     
         --Tween(Window.UIElements.Main.Background.UIScale, 0.19, {Scale = .95}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
         if BGImage then
+            if BGImage:IsA("VideoFrame") then
+                BGImage.Visible = false
+            end
             Tween(BGImage, 0.2, {
                 ImageTransparency = BGImage:IsA("ImageLabel") and 1 or nil,
                 --BackgroundTransparency = BGImage:IsA("VideoFrame") and 1 or nil,

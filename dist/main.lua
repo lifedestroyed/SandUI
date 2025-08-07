@@ -7403,9 +7403,12 @@ Size=UDim2.new(1,0,1,0),
 },Enum.EasingStyle.Exponential,Enum.EasingDirection.Out):Play()
 
 if A then
+if A:IsA"VideoFrame"then
+A.Visible=true
+end
 e(A,0.2,{
 ImageTransparency=A:IsA"ImageLabel"and 0 or nil,
-BackgroundTransparency=A:IsA"VideoFrame"and 0 or nil,
+
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 
@@ -7433,9 +7436,6 @@ o.UIElements.Main.Visible=true
 task.spawn(function()
 task.wait(.05)
 o.UIElements.Main:WaitForChild"Main".Visible=true
-if A and A:IsA"VideoFrame"then
-A.Visible=true
-end
 end)
 end)
 end
@@ -7450,9 +7450,6 @@ end
 
 o.UIElements.Main:WaitForChild"Main".Visible=false
 
-if A and A:IsA"VideoFrame"then
-A.Visible=false
-end
 o.CanDropdown=false
 o.Closed=true
 
@@ -7471,6 +7468,9 @@ Size=UDim2.new(1,0,1,-240),
 
 
 if A then
+if A:IsA"VideoFrame"then
+A.Visible=false
+end
 e(A,0.2,{
 ImageTransparency=A:IsA"ImageLabel"and 1 or nil,
 
