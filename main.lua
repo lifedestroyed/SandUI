@@ -41,38 +41,6 @@ WindUI:Localization({
 WindUI.TransparencyValue = 0.2
 WindUI:SetTheme("Dark")
 
-WindUI:AddTheme({
-    Name = "Midnight",
-    Accent = "1a1b26",
-    Outline = "414868",
-    Text = "a9b1d6",
-    Placeholder = "565f89"
-})
-
-WindUI:AddTheme({
-    Name = "Sunset",
-    Accent = "f97316",
-    Outline = "fb923c",
-    Text = "4b5563",
-    Placeholder = "9ca3af"
-})
-
-WindUI:AddTheme({
-    Name = "Ocean",
-    Accent = "0891b2",
-    Outline = "06b6d4",
-    Text = "164e63",
-    Placeholder = "67e8f9"
-})
-
-WindUI:AddTheme({
-    Name = "Forest",
-    Accent = "16a34a",
-    Outline = "22c55e",
-    Text = "14532d",
-    Placeholder = "86efac"
-})
-
 local function gradient(text, startColor, endColor)
     local result = ""
     for i = 1, #text do
