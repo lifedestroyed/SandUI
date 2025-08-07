@@ -920,7 +920,7 @@ return function(Config)
             task.spawn(function()
                 task.wait(.05)
                 Window.UIElements.Main:WaitForChild("Main").Visible = true
-                if BGImage:IsA("VideoFrame") then
+                if BGImage and BGImage:IsA("VideoFrame") then
                     BGImage.Visible = true
                 end
             end)
@@ -937,7 +937,7 @@ return function(Config)
         
         Window.UIElements.Main:WaitForChild("Main").Visible = false
         
-        if BGImage:IsA("VideoFrame") then
+        if BGImage and BGImage:IsA("VideoFrame") then
             BGImage.Visible = false
         end
         Window.CanDropdown = false
