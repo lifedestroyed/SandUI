@@ -231,6 +231,7 @@ end
 
 
 function h.ChangeTranslationKey(i,j,k)
+if h.Localization then
 local l=string.match(k,"^"..h.Localization.Prefix.."(.+)")
 for m,n in ipairs(h.LocalizationObjects)do
 if n.Object==j then
@@ -245,6 +246,7 @@ TranslationId=l,
 Object=j
 })
 h.SetLangForObject(#h.LocalizationObjects)
+end
 end
 
 

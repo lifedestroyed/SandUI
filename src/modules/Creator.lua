@@ -214,20 +214,22 @@ end
 
 
 function Creator:ChangeTranslationKey(object, newKey)
-    local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
-    for i, data in ipairs(Creator.LocalizationObjects) do
-        if data.Object == object then
-            data.TranslationId = ParsedKey
-            Creator.SetLangForObject(i)
-            return
+    if Creator.Localization then
+        local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
+        for i, data in ipairs(Creator.LocalizationObjects) do
+            if data.Object == object then
+                data.TranslationId = ParsedKey
+                Creator.SetLangForObject(i)
+                return
+            end
         end
+        
+        table.insert(Creator.LocalizationObjects, {
+            TranslationId = ParsedKey,
+            Object = object
+        })
+        Creator.SetLangForObject(#Creator.LocalizationObjects)
     end
-    
-    table.insert(Creator.LocalizationObjects, {
-        TranslationId = ParsedKey,
-        Object = object
-    })
-    Creator.SetLangForObject(#Creator.LocalizationObjects)
 end
 
 
