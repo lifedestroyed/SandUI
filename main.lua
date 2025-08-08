@@ -72,7 +72,7 @@ local Window = WindUI:CreateWindow({
     Icon = "palette",
     Author = "loc:WELCOME",
     Folder = "WindUI_Example",
-    Size = UDim2.fromOffset(700, 500),
+    Size = UDim2.fromOffset(580, 490),
     Theme = "Dark",
     -- Background = WindUI:Gradient({
     --     ["0"] = { Color = Color3.fromHex("#0f0c29"), Transparency = 1 },
@@ -259,7 +259,7 @@ TabHandles.Appearance:Button({
     Title = "Create New Theme",
     Icon = "plus",
     Callback = function()
-        WindUI:Dialog({
+        Window:Dialog({
             Title = "Create Theme",
             Content = "This feature is coming soon!",
             Buttons = {

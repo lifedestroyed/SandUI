@@ -575,6 +575,7 @@ return function(Config)
                     Size = UDim2.new(0,0,1,0),
                     AnchorPoint = Vector2.new(0,0.5),
                     Position = UDim2.new(0,0,0.5,0),
+                    Visible = false,
                 }, {
                     New("UIListLayout", {
                         FillDirection = "Horizontal",
@@ -1306,8 +1307,10 @@ return function(Config)
     end, 999)
     
     function Window:Tag(TagConfig)
+        if Window.UIElements.Main.Main.Topbar.Center.Visible == false then Window.UIElements.Main.Main.Topbar.Center.Visible = true end
         return Tag:New(TagConfig, Window.UIElements.Main.Main.Topbar.Center)
     end
+
 
     local function startResizing(input)
         if Window.CanResize then

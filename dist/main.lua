@@ -210,6 +210,7 @@ end
 end
 
 function h.SetLangForObject(i)
+if h.Localization and h.Localization.Enabled then
 local j=h.LocalizationObjects[i]
 if not j then return end
 
@@ -228,10 +229,11 @@ k.Text="["..l.."]"
 end
 end
 end
+end
 
 
 function h.ChangeTranslationKey(i,j,k)
-if h.Localization then
+if h.Localization and h.Localization then
 local l=string.match(k,"^"..h.Localization.Prefix.."(.+)")
 for m,n in ipairs(h.LocalizationObjects)do
 if n.Object==j then
@@ -7091,6 +7093,7 @@ CanvasSize=UDim2.new(0,0,0,0),
 Size=UDim2.new(0,0,1,0),
 AnchorPoint=Vector2.new(0,0.5),
 Position=UDim2.new(0,0,0.5,0),
+Visible=false,
 },{
 b("UIListLayout",{
 FillDirection="Horizontal",
@@ -7822,8 +7825,10 @@ Variant="Primary",
 end,999)
 
 function o.Tag(ad,ae)
+if o.UIElements.Main.Main.Topbar.Center.Visible==false then o.UIElements.Main.Main.Topbar.Center.Visible=true end
 return j:New(ae,o.UIElements.Main.Main.Topbar.Center)
 end
+
 
 local function startResizing(ad)
 if o.CanResize then
@@ -7936,7 +7941,7 @@ end
 end
 
 return o
-end end end
+end end function a.I()
 local aa={
 Window=nil,
 Theme=nil,
@@ -8197,4 +8202,426 @@ aa.Window=o
 return o
 end
 
-return aa
+return aa end end
+local aa=a.load'I'
+
+aa:Localization{
+Enabled=true,
+Prefix="loc:",
+DefaultLanguage="en",
+Translations={ru=
+{WINDUI_EXAMPLE=
+"WindUI Пример",WELCOME=
+"Добро пожаловать в WindUI!",LIB_DESC=
+"Библиотека для создания красивых интерфейсов",SETTINGS=
+"Настройки",APPEARANCE=
+"Внешний вид",FEATURES=
+"Функционал",UTILITIES=
+"Инструменты",UI_ELEMENTS=
+"UI Элементы",CONFIGURATION=
+"Конфигурация",SAVE_CONFIG=
+"Сохранить конфигурацию",LOAD_CONFIG=
+"Загрузить конфигурацию",THEME_SELECT=
+"Выберите тему",TRANSPARENCY=
+"Прозрачность окна"
+},en=
+{WINDUI_EXAMPLE=
+"WindUI Example",WELCOME=
+"Welcome to WindUI!",LIB_DESC=
+"Beautiful UI library for Roblox",SETTINGS=
+"Settings",APPEARANCE=
+"Appearance",FEATURES=
+"Features",UTILITIES=
+"Utilities",UI_ELEMENTS=
+"UI Elements",CONFIGURATION=
+"Configuration",SAVE_CONFIG=
+"Save Configuration",LOAD_CONFIG=
+"Load Configuration",THEME_SELECT=
+"Select Theme",TRANSPARENCY=
+"Window Transparency"
+}
+}
+}
+
+aa.TransparencyValue=0.2
+aa:SetTheme"Dark"
+
+local function gradient(ab,ac,ad)
+local ae=""
+for af=1,#ab do
+local ag=(af-1)/(#ab-1)
+local ah=math.floor((ac.R+(ad.R-ac.R)*ag)*255)
+local ai=math.floor((ac.G+(ad.G-ac.G)*ag)*255)
+local b=math.floor((ac.B+(ad.B-ac.B)*ag)*255)
+ae=ae..string.format('<font color="rgb(%d,%d,%d)">%s</font>',ah,ai,b,ab:sub(af,af))
+end
+return ae
+end
+
+aa:Popup{
+Title=gradient("WindUI Demo",Color3.fromHex"#6A11CB",Color3.fromHex"#2575FC"),
+Icon="sparkles",
+Content="loc:LIB_DESC",
+Buttons={
+{
+Title="Get Started",
+Icon="arrow-right",
+Variant="Primary",
+Callback=function()end
+}
+}
+}
+
+local ab=aa:CreateWindow{
+Title="loc:WINDUI_EXAMPLE",
+Icon="palette",
+Author="loc:WELCOME",
+Folder="WindUI_Example",
+Size=UDim2.fromOffset(580,490),
+Theme="Dark",
+
+
+
+
+
+
+
+User={
+Enabled=true,
+Anonymous=true,
+Callback=function()
+aa:Notify{
+Title="User Profile",
+Content="User profile clicked!",
+Duration=3
+}
+end
+},
+SideBarWidth=220,
+ScrollBarEnabled=true
+}
+
+ab:Tag{
+Title="v1.6.4",
+Color=Color3.fromHex"#30ff6a"
+}
+ab:Tag{
+Title="UI Library",
+
+}
+
+ab:CreateTopbarButton("theme-switcher","moon",function()
+aa:SetTheme(aa:GetCurrentTheme()=="Dark"and"Light"or"Dark")
+aa:Notify{
+Title="Theme Changed",
+Content="Current theme: "..aa:GetCurrentTheme(),
+Duration=2
+}
+end,990)
+
+local ac={
+Main=ab:Section{Title="loc:FEATURES",Opened=true},
+Settings=ab:Section{Title="loc:SETTINGS",Opened=true},
+Utilities=ab:Section{Title="loc:UTILITIES",Opened=true}
+}
+
+local ad={
+Elements=ac.Main:Tab{Title="loc:UI_ELEMENTS",Icon="layout-grid"},
+Appearance=ac.Settings:Tab{Title="loc:APPEARANCE",Icon="brush"},
+Config=ac.Utilities:Tab{Title="loc:CONFIGURATION",Icon="settings"}
+}
+
+ad.Elements:Paragraph{
+Title="Interactive Components",
+Desc="Explore WindUI's powerful elements",
+Image="component",
+ImageSize=20,
+Color="White",
+}
+
+ad.Elements:Divider()
+
+local ae=false
+local af=ad.Elements:Toggle{
+Title="Enable Advanced Features",
+Desc="Unlocks additional functionality",
+Value=false,
+Callback=function(af)
+ae=af
+aa:Notify{
+Title="Features",
+Content=af and"Features Enabled"or"Features Disabled",
+Icon=af and"check"or"x",
+Duration=2
+}
+end
+}
+
+local ag=ad.Elements:Slider{
+Title="Effect Intensity",
+Desc="Adjust the effect strength",
+Value={Min=0,Max=100,Default=50},
+Callback=function(ag)
+print("Intensity set to:",ag)
+end
+}
+
+local ah=ad.Elements:Dropdown{
+Title="Select Mode",
+Values={"Standard","Advanced","Expert"},
+Value="Standard",
+Callback=function(ah)
+aa:Notify{
+Title="Mode Changed",
+Content="Selected: "..ah,
+Duration=2
+}
+end
+}
+
+ad.Elements:Divider()
+
+ad.Elements:Button{
+Title="Show Notification",
+Icon="bell",
+Callback=function()
+aa:Notify{
+Title="Hello WindUI!",
+Content="This is a sample notification",
+Icon="bell",
+Duration=3
+}
+end
+}
+
+ad.Elements:Colorpicker{
+Title="Accent Color",
+Desc="Change the UI accent color",
+Default=Color3.fromHex"#6366f1",
+Callback=function(ai)
+aa:Notify{
+Title="Color Changed",
+Content="New accent: "..ai:ToHex(),
+Duration=2
+}
+end
+}
+
+ad.Appearance:Paragraph{
+Title="Customize Interface",
+Desc="Personalize your experience",
+Image="palette",
+ImageSize=20,
+Color="White"
+}
+
+local ai={}
+for b,e in pairs(aa:GetThemes())do
+table.insert(ai,b)
+end
+table.sort(ai)
+
+local g=ad.Appearance:Dropdown{
+Title="loc:THEME_SELECT",
+Values=ai,
+Value="Dark",
+Callback=function(g)
+aa:SetTheme(g)
+aa:Notify{
+Title="Theme Applied",
+Content=g,
+Icon="palette",
+Duration=2
+}
+end
+}
+
+local h=ad.Appearance:Slider{
+Title="loc:TRANSPARENCY",
+Value={
+Min=0,
+Max=1,
+Default=0.2,
+},
+Step=0.1,
+Callback=function(h)
+ab:ToggleTransparency(tonumber(h)>0)
+aa.TransparencyValue=tonumber(h)
+end
+}
+
+ad.Appearance:Toggle{
+Title="Enable Dark Mode",
+Desc="Use dark color scheme",
+Value=true,
+Callback=function(i)
+aa:SetTheme(i and"Dark"or"Light")
+g:Select(i and"Dark"or"Light")
+end
+}
+
+ad.Appearance:Button{
+Title="Create New Theme",
+Icon="plus",
+Callback=function()
+ab:Dialog{
+Title="Create Theme",
+Content="This feature is coming soon!",
+Buttons={
+{
+Title="OK",
+Variant="Primary"
+}
+}
+}
+end
+}
+
+ad.Config:Paragraph{
+Title="Configuration Manager",
+Desc="Save and load your settings",
+Image="save",
+ImageSize=20,
+Color="White"
+}
+
+local i="default"
+local j
+local k={
+name="Player1",
+level=1,
+inventory={"sword","shield","potion"}
+}
+
+ad.Config:Input{
+Title="Config Name",
+Value=i,
+Callback=function(l)
+i=l
+end
+}
+
+local l=ab.ConfigManager
+if l then
+l:Init(ab)
+
+ad.Config:Button{
+Title="loc:SAVE_CONFIG",
+Icon="save",
+Variant="Primary",
+Callback=function()
+j=l:CreateConfig(i)
+
+j:Register("featureToggle",af)
+j:Register("intensitySlider",ag)
+j:Register("modeDropdown",ah)
+j:Register("themeDropdown",g)
+j:Register("transparencySlider",h)
+
+j:Set("playerData",k)
+j:Set("lastSave",os.date"%Y-%m-%d %H:%M:%S")
+
+if j:Save()then
+aa:Notify{
+Title="loc:SAVE_CONFIG",
+Content="Saved as: "..i,
+Icon="check",
+Duration=3
+}
+else
+aa:Notify{
+Title="Error",
+Content="Failed to save config",
+Icon="x",
+Duration=3
+}
+end
+end
+}
+
+ad.Config:Button{
+Title="loc:LOAD_CONFIG",
+Icon="folder",
+Callback=function()
+j=l:CreateConfig(i)
+local o=j:Load()
+
+if o then
+if o.playerData then
+k=o.playerData
+end
+
+local p=o.lastSave or"Unknown"
+aa:Notify{
+Title="loc:LOAD_CONFIG",
+Content="Loaded: "..i.."\nLast save: "..p,
+Icon="refresh-cw",
+Duration=5
+}
+
+ad.Config:Paragraph{
+Title="Player Data",
+Desc=string.format("Name: %s\nLevel: %d\nInventory: %s",
+k.name,
+k.level,
+table.concat(k.inventory,", "))
+}
+else
+aa:Notify{
+Title="Error",
+Content="Failed to load config",
+Icon="x",
+Duration=3
+}
+end
+end
+}
+else
+ad.Config:Paragraph{
+Title="Config Manager Not Available",
+Desc="This feature requires ConfigManager",
+Image="alert-triangle",
+ImageSize=20,
+Color="White"
+}
+end
+
+
+ab:Section{Title="WindUI "..aa.Version}
+ad.Config:Paragraph{
+Title="Created with ❤️",
+Desc="github.com/Footagesus/WindUI",
+Image="github",
+ImageSize=20,
+Color="Grey",
+Buttons={
+{
+Title="Copy Link",
+Icon="copy",
+Variant="Tertiary",
+Callback=function()
+setclipboard"https://github.com/Footagesus/WindUI"
+aa:Notify{
+Title="Copied!",
+Content="GitHub link copied to clipboard",
+Duration=2
+}
+end
+}
+}
+}
+
+ab:OnClose(function()
+print"Window closed"
+
+if l and j then
+j:Set("playerData",k)
+j:Set("lastSave",os.date"%Y-%m-%d %H:%M:%S")
+j:Save()
+print"Config auto-saved on close"
+end
+end)
+
+ab:OnDestroy(function()
+print"Window destroyed"
+end)

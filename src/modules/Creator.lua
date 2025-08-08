@@ -193,28 +193,30 @@ function Creator.UpdateTheme(TargetObject, isTween)
 end
 
 function Creator.SetLangForObject(index)
-    local data = Creator.LocalizationObjects[index]
-    if not data then return end
-    
-    local obj = data.Object
-    local translationId = data.TranslationId
-    
-    local translations = Creator.Localization.Translations[Creator.Language]
-    if translations and translations[translationId] then
-        obj.Text = translations[translationId]
-    else
-        local enTranslations = Creator.Localization and Creator.Localization.Translations and Creator.Localization.Translations.en or nil
-        if enTranslations and enTranslations[translationId] then
-            obj.Text = enTranslations[translationId]
+    if Creator.Localization and Creator.Localization.Enabled then
+        local data = Creator.LocalizationObjects[index]
+        if not data then return end
+        
+        local obj = data.Object
+        local translationId = data.TranslationId
+        
+        local translations = Creator.Localization.Translations[Creator.Language]
+        if translations and translations[translationId] then
+            obj.Text = translations[translationId]
         else
-            obj.Text = "[" .. translationId .. "]"
+            local enTranslations = Creator.Localization and Creator.Localization.Translations and Creator.Localization.Translations.en or nil
+            if enTranslations and enTranslations[translationId] then
+                obj.Text = enTranslations[translationId]
+            else
+                obj.Text = "[" .. translationId .. "]"
+            end
         end
     end
 end
 
 
 function Creator:ChangeTranslationKey(object, newKey)
-    if Creator.Localization then
+    if Creator.Localization and Creator.Localization then
         local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
         for i, data in ipairs(Creator.LocalizationObjects) do
             if data.Object == object then
