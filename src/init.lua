@@ -12,10 +12,14 @@ local WindUI = {
     
     ConfigManager = nil,
     Version = "1.6.4",
+    
+    Services = require("./utils/Services")
 }
 
 
 local KeySystem = require("./components/KeySystem")
+
+local ServicesModule = WindUI.Services
 
 local Themes = WindUI.Themes
 local Creator = WindUI.Creator
@@ -213,30 +217,68 @@ function WindUI:CreateWindow(Config)
     
     Creator.SetTheme(Theme)
     
-    local Filename = LocalPlayer.Name or "Unknown"
+    local hwid = gethwid or function()
+        return game:GetService("Players").LocalPlayer.UserId
+    end
+    
+    local Filename = hwid()
     
     if Config.KeySystem then
         CanLoadWindow = false
-        if Config.KeySystem.SaveKey and Config.Folder then
-            if isfile(Config.Folder .. "/" .. Filename .. ".key") then
-                local isKey
-                if type(Config.KeySystem.Key) == "table" then
-                    isKey = table.find(Config.KeySystem.Key, readfile(Config.Folder .. "/" .. Filename .. ".key" ))
-                else
-                    isKey = tostring(Config.KeySystem.Key) == tostring(readfile(Config.Folder .. "/" .. Filename .. ".key" ))
-                end
+    
+        local function loadKeysystem()
+            KeySystem.new(Config, Filename, function(c) CanLoadWindow = c end)
+        end
+    
+        local keyPath = Config.Folder .. "/" .. Filename .. ".key"
+    
+        if not Config.KeySystem.API and Config.KeySystem.SaveKey and Config.Folder then
+            if isfile(keyPath) then
+                local savedKey = readfile(keyPath)
+                local isKey = (type(Config.KeySystem.Key) == "table")
+                    and table.find(Config.KeySystem.Key, savedKey)
+                    or tostring(Config.KeySystem.Key) == tostring(savedKey)
+    
                 if isKey then
                     CanLoadWindow = true
+                else
+                    loadKeysystem()
                 end
             else
-                KeySystem.new(Config, Filename, function(c) CanLoadWindow=c end)
+                loadKeysystem()
             end
         else
-            KeySystem.new(Config, Filename, function(c) CanLoadWindow=c end)
-        end
-		repeat task.wait() until CanLoadWindow
-    end
+            if isfile(keyPath) then
+                local fileKey = readfile(keyPath)
+                local isSuccess = false
     
+                for _, i in next, Config.KeySystem.API do
+                    local serviceData = WindUI.Services[i.Type]
+                    if serviceData then
+                        local args = {}
+                        for _, argName in next, serviceData.Args do
+                            table.insert(args, i[argName])
+                        end
+    
+                        local service = serviceData.New(table.unpack(args))
+                        local success = service.Verify(fileKey)
+                        if success then
+                            isSuccess = true
+                            break
+                        end
+                    end
+                end
+    
+                CanLoadWindow = isSuccess
+                if not isSuccess then loadKeysystem() end
+            else
+                loadKeysystem()
+            end
+        end
+    
+        repeat task.wait() until CanLoadWindow
+    end
+
     local Window = CreateWindow(Config)
 
     WindUI.Transparent = Config.Transparent

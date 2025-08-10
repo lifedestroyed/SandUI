@@ -1,7 +1,4 @@
-# 1.6.4
+# 1.6.41
 ## Changelog:
-- Background Gradients
-- Localizations (Translator)
-- Video Background 
-- UI Tags
-- Custom Data Support in Config Manager
+- Fix some bugs
+- Added Services in Key System (look at example.lua)

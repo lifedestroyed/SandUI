@@ -556,7 +556,7 @@ return function(Config)
                             Padding = UDim.new(0,0),
                             SortOrder = "LayoutOrder",
                             FillDirection = "Vertical",
-                            VerticalAlignment = "Top",
+                            VerticalAlignment = "Center",
                         }),
                         WindowTitle,
                     }),
