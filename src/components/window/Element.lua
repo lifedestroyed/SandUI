@@ -6,6 +6,53 @@ local Tween = Creator.Tween
 local UserInputService = game:GetService("UserInputService")
 
 
+local function Color3ToHSB(color)
+	local r, g, b = color.R, color.G, color.B
+	local max = math.max(r, g, b)
+	local min = math.min(r, g, b)
+	local delta = max - min
+
+	local h = 0
+	if delta ~= 0 then
+		if max == r then
+			h = (g - b) / delta % 6
+		elseif max == g then
+			h = (b - r) / delta + 2
+		else
+			h = (r - g) / delta + 4
+		end
+		h = h * 60
+	else
+		h = 0
+	end
+
+	local s = (max == 0) and 0 or (delta / max)
+	local v = max
+
+	return {
+		h = math.floor(h + 0.5),
+		s = s,
+		b = v
+	}
+end
+
+local function GetPerceivedBrightness(color)
+	local r = color.R
+	local g = color.G
+	local b = color.B
+	return 0.299 * r + 0.587 * g + 0.114 * b
+end
+
+local function GetTextColorForHSB(color)
+    local hsb = Color3ToHSB(color)
+	local h, s, b = hsb.h, hsb.s, hsb.b
+	if GetPerceivedBrightness(color) > 0.5 then
+		return Color3.fromHSV(h / 360, 0, 0.05)
+	else
+		return Color3.fromHSV(h / 360, 0, 0.98)
+	end
+end
+
 return function(Config)
     local Element = {
         Title = Config.Title,
@@ -19,8 +66,8 @@ return function(Config)
         Color = Config.Color,
         Scalable = Config.Scalable,
         Parent = Config.Parent,
-        UIPadding = 14,
-        UICorner = 14,
+        UIPadding = 13,
+        UICorner = 12,
         UIElements = {}
     }
     
@@ -52,29 +99,35 @@ return function(Config)
             Element.UICorner-3, 
             Config.Window.Folder,
             "Image",
-            Element.Color and true or false
+            not Element.Color and true or false
         )
-        if Element.Color == "White" then
-            ImageFrame.ImageLabel.ImageColor3 = Color3.new(0,0,0)
-        elseif Element.Color then
-            ImageFrame.ImageLabel.ImageColor3 = Color3.new(1,1,1)
+        if typeof(Element.Color) == "string" then 
+            ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Color3.fromHex(Creator.Colors[Element.Color]))
+        elseif typeof(Element.Color) == "Color3" then
+            ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Element.Color)
         end
+        
         ImageFrame.Size = UDim2.new(0,ImageSize,0,ImageSize)
         
         IconOffset = ImageSize
     end
     
     local function CreateText(Title, Type)
+        local TextColor = typeof(Element.Color) == "string" 
+            and GetTextColorForHSB(Color3.fromHex(Creator.Colors[Element.Color]))
+            or typeof(Element.Color) == "Color3" 
+            and GetTextColorForHSB(Element.Color)
+        
         return New("TextLabel", {
             BackgroundTransparency = 1,
             Text = Title or "",
             TextSize = Type == "Desc" and 15 or 17,
             TextXAlignment = "Left",
             ThemeTag = {
-                TextColor3 = not Element.Color and (Type == "Desc" and "Icon" or "Text") or nil,
+                TextColor3 = not Element.Color and "Text" or nil,
             },
-            TextColor3 = Element.Color and (Element.Color == "White" and Color3.new(0,0,0) or Element.Color ~= "White" and Color3.new(1,1,1)) or nil,
-            TextTransparency = Element.Color and (Type == "Desc" and .3 or 0),
+            TextColor3 = Element.Color and TextColor or nil,
+            TextTransparency = Type == "Desc" and .25 or 0,
             TextWrapped = true,
             Size = UDim2.new(1,0,0,0),
             AutomaticSize = "Y",
@@ -118,7 +171,7 @@ return function(Config)
                 Size = UDim2.new(1,-IconOffset,0,(50-(Element.UIPadding*2)))
             }, {
                 New("UIListLayout", {
-                    Padding = UDim.new(0,4),
+                    Padding = UDim.new(0,6),
                     FillDirection = "Vertical",
                     VerticalAlignment = "Center",
                     HorizontalAlignment = "Left",
@@ -143,7 +196,7 @@ return function(Config)
     Element.UIElements.Main = NewRoundFrame(Element.UICorner, "Squircle", {
         Size = UDim2.new(1,0,0,50),
         AutomaticSize = "Y",
-        ImageTransparency = Element.Color and .1 or .95,
+        ImageTransparency = Element.Color and .05 or .95,
         --Text = "",
         --TextTransparency = 1,
         --AutoButtonColor = false,
@@ -151,7 +204,13 @@ return function(Config)
         ThemeTag = {
             ImageColor3 = not Element.Color and "Text" or nil
         },
-        ImageColor3 = Element.Color and Color3.fromHex(Creator.Colors[Element.Color]) or nil
+        ImageColor3 = Element.Color and 
+            ( 
+                typeof(Element.Color) == "string" 
+                    and Color3.fromHex(Creator.Colors[Element.Color]) 
+                    or typeof(Element.Color) == "Color3" 
+                    and Element.Color
+            ) or nil
     }, {
         Element.UIElements.Container,
         Element.UIElements.Locked,
@@ -171,7 +230,7 @@ return function(Config)
         end)
         Creator.AddSignal(Element.UIElements.Main.InputEnded, function()
             if CanHover then
-                Tween(Element.UIElements.Main, .05, {ImageTransparency = Element.Color and .1 or .95}):Play()
+                Tween(Element.UIElements.Main, .05, {ImageTransparency = Element.Color and .05 or .95}):Play()
             end
         end)
     end

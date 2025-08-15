@@ -13,13 +13,14 @@ local LocalizationService = game:GetService("LocalizationService")
 local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main.lua"))()
 Icons.SetIconsType("lucide")
 
+local WindUI
+
 local Creator = {
     Font = "rbxassetid://12187365364", -- Inter
     Localization = nil,
     CanDraggable = true,
     Theme = nil,
     Themes = nil,
-    WindUI = nil,
     Signals = {},
     Objects = {},
     LocalizationObjects = {},
@@ -95,8 +96,8 @@ local Creator = {
 
 
 
-function Creator.Init(WindUI)
-    Creator.WindUI = WindUI
+function Creator.Init(WindUITable)
+    WindUI = WindUITable
 end
 
 
@@ -124,7 +125,7 @@ function Creator.SafeCallback(Function, ...)
 
 	    warn("[ WindUI: DEBUG Mode ] " .. Event)
 	    
-		return Creator.WindUI:Notify({
+		return WindUI:Notify({
 			Title = "DEBUG Mode: Error",
 			Content = not i and Event or Event:sub(i + 1),
 			Duration = 8,
@@ -216,21 +217,23 @@ end
 
 
 function Creator:ChangeTranslationKey(object, newKey)
-    if Creator.Localization and Creator.Localization then
+    if Creator.Localization and Creator.Localization.Enabled then
         local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
-        for i, data in ipairs(Creator.LocalizationObjects) do
-            if data.Object == object then
-                data.TranslationId = ParsedKey
-                Creator.SetLangForObject(i)
-                return
+        if ParsedKey then
+            for i, data in ipairs(Creator.LocalizationObjects) do
+                if data.Object == object then
+                    data.TranslationId = ParsedKey
+                    Creator.SetLangForObject(i)
+                    return
+                end
             end
+            
+            table.insert(Creator.LocalizationObjects, {
+                TranslationId = ParsedKey,
+                Object = object
+            })
+            Creator.SetLangForObject(#Creator.LocalizationObjects)
         end
-        
-        table.insert(Creator.LocalizationObjects, {
-            TranslationId = ParsedKey,
-            Object = object
-        })
-        Creator.SetLangForObject(#Creator.LocalizationObjects)
     end
 end
 
@@ -436,7 +439,7 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
             BackgroundTransparency = 1,
             ScaleType = "Crop",
             ThemeTag = (Creator.Icon(Img) or Themed) and {
-                ImageColor3 = IsThemeTag and "Icon" 
+                ImageColor3 = IsThemeTag and "Icon" or nil 
             } or nil,
         }, {
             New("UICorner", {

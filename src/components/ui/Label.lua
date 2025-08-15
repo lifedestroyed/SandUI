@@ -23,7 +23,7 @@ function Label.New(Text, Icon, Parent)
     
     local TextLabel = New("TextLabel", {
         BackgroundTransparency = 1,
-        TextSize = 16,
+        TextSize = 17,
         FontFace = Font.new(Creator.Font, Enum.FontWeight.Regular),
         Size = UDim2.new(1,IconLabelFrame and -29 or 0,1,0),
         TextXAlignment = "Left",

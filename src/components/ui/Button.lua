@@ -57,7 +57,8 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded)
             AnchorPoint = Vector2.new(0.5,0.5),
             Position = UDim2.new(0.5,0,0.5,0),
             Name = "Shadow",
-            ImageTransparency = Variant == "Secondary" and 0 or 1,
+            --ImageTransparency = Variant == "Secondary" and 0 or 1,
+            ImageTransparency = 1,
             Visible = not FullRounded
         }),
     
@@ -69,6 +70,20 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded)
             ImageColor3 = Variant == "White" and Color3.new(0,0,0) or nil,
             ImageTransparency = Variant == "Primary" and .95 or .85,
             Name = "SquircleOutline",
+        }, {
+            New("UIGradient", {
+                Rotation = 70,
+                Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+                    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 255, 255)),
+                }),
+                Transparency = NumberSequence.new({
+                    NumberSequenceKeypoint.new(0.0, 0.1),
+                    NumberSequenceKeypoint.new(0.5, 1),
+                    NumberSequenceKeypoint.new(1.0, 0.1),
+                })
+            })
         }),
     
         Creator.NewRoundFrame(Radius, "Squircle", {

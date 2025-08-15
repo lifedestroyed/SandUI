@@ -30,7 +30,7 @@ return function(Config)
         BackgroundImageTransparency = Config.BackgroundImageTransparency or 0,
         User = Config.User or {},
         Size = Config.Size and UDim2.new(
-                    0, math.clamp(Config.Size.X.Offset, 480, 700),
+                    0, math.clamp(Config.Size.X.Offset, 520, 700),
                     0, math.clamp(Config.Size.Y.Offset, 350, 520)) or UDim2.new(0,580,0,460),
         ToggleKey = Config.ToggleKey or Enum.KeyCode.G,
         Transparent = Config.Transparent or false,
@@ -39,6 +39,7 @@ return function(Config)
 		SideBarWidth = Config.SideBarWidth or 200,
         
         Position = UDim2.new(0.5, 0,0.5, 0),
+		IconSize = 22,
 		UICorner = 16,
 		UIPadding = 14,
 		UIElements = {},
@@ -459,6 +460,32 @@ return function(Config)
         })
     })
 
+    function createAuthor(text)
+        return New("TextLabel", {
+            Text = text,
+            FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
+            BackgroundTransparency = 1,
+            TextTransparency = 0.35,
+            AutomaticSize = "XY",
+            Parent = Window.UIElements.Main and Window.UIElements.Main.Main.Topbar.Left.Title,
+            TextXAlignment = "Left",
+            TextSize = 13,
+            LayoutOrder = 2,
+            ThemeTag = {
+                TextColor3 = "Text"
+            },
+            Name = "Author",
+        })
+    end
+    
+    local WindowAuthor
+    local WindowIcon
+    
+    if Window.Author then
+        WindowAuthor = createAuthor(Window.Author)
+    end
+    
+
     local WindowTitle = New("TextLabel", {
         Text = Window.Title,
         FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
@@ -559,6 +586,7 @@ return function(Config)
                             VerticalAlignment = "Center",
                         }),
                         WindowTitle,
+                        WindowAuthor,
                     }),
                     New("UIPadding", {
                         PaddingLeft = UDim.new(0,4)
@@ -609,10 +637,20 @@ return function(Config)
     })
     
     Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()
-        Window.UIElements.Main.Main.Topbar.Center.Position = UDim2.new(0,Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X + Window.UIPadding,0.5,0)
+        local LeftWidth = 0
+        local RightWidth = Window.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X
+        if WindowTitle and WindowAuthor then
+            LeftWidth = math.max(WindowTitle.TextBounds.X, WindowAuthor.TextBounds.X)
+        else
+            LeftWidth = WindowTitle.TextBounds.X
+        end
+        if WindowIcon then
+            LeftWidth = LeftWidth + Window.IconSize + Window.UIPadding+4
+        end
+        Window.UIElements.Main.Main.Topbar.Center.Position = UDim2.new(0,LeftWidth + Window.UIPadding,0.5,0)
         Window.UIElements.Main.Main.Topbar.Center.Size = UDim2.new(
             1,
-            - Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X - Window.UIElements.Main.Main.Topbar.Right.AbsoluteSize.X - Window.UIPadding - Window.UIPadding,
+            - LeftWidth - RightWidth - (Window.UIPadding*2),
             1,
             0
         )
@@ -737,31 +775,13 @@ return function(Config)
     --     OpenButtonDragModule = Creator.Drag(OpenButtonContainer)
     -- end
     
-    if Window.Author then
-        local Author = New("TextLabel", {
-            Text = Window.Author,
-            FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
-            BackgroundTransparency = 1,
-            TextTransparency = 0.4,
-            AutomaticSize = "XY",
-            Parent = Window.UIElements.Main.Main.Topbar.Left.Title,
-            TextXAlignment = "Left",
-            TextSize = 13,
-            LayoutOrder = 2,
-            ThemeTag = {
-                TextColor3 = "Text"
-            }
-        })
-        
-    end
-    
     local OpenButtonMain = require("./Openbutton").New(Window)
 
     
     task.spawn(function()
         if Window.Icon then
             
-            local ImageFrame = Creator.Image(
+            WindowIcon = Creator.Image(
                 Window.Icon,
                 Window.Title,
                 0,
@@ -770,8 +790,8 @@ return function(Config)
                 true,
                 Window.IconThemed
             )
-            ImageFrame.Parent = Window.UIElements.Main.Main.Topbar.Left
-            ImageFrame.Size = UDim2.new(0,22,0,22)
+            WindowIcon.Parent = Window.UIElements.Main.Main.Topbar.Left
+            WindowIcon.Size = UDim2.new(0,Window.IconSize,0,Window.IconSize)
             
             OpenButtonMain:SetIcon(Window.Icon)
             
@@ -793,6 +813,20 @@ return function(Config)
     
     function Window:SetToggleKey(keycode)
         Window.ToggleKey = keycode
+    end
+    
+    function Window:SetTitle(text)
+        Window.Title = text
+        WindowTitle.Text = text
+    end
+    
+    function Window:SetAuthor(text)
+        Window.Author = text
+        if not WindowAuthor then
+            WindowAuthor = createAuthor(Window.Author)
+        end
+        
+        WindowAuthor.Text = text
     end
     
     function Window:SetBackgroundImage(id)
@@ -1125,9 +1159,9 @@ return function(Config)
                 VerticalAlignment = "Center"
             }),
             New("UIPadding", {
-                PaddingTop = UDim.new(0, DialogTable.TextPadding),
-                PaddingLeft = UDim.new(0, DialogTable.TextPadding),
-                PaddingRight = UDim.new(0, DialogTable.TextPadding),
+                PaddingTop = UDim.new(0, DialogTable.TextPadding/2),
+                PaddingLeft = UDim.new(0, DialogTable.TextPadding/2),
+                PaddingRight = UDim.new(0, DialogTable.TextPadding/2),
             })
         })
         
@@ -1194,9 +1228,9 @@ return function(Config)
                 Parent = Dialog.UIElements.Main
             }, {
                 New("UIPadding", {
-                    PaddingLeft = UDim.new(0, DialogTable.TextPadding),
-                    PaddingRight = UDim.new(0, DialogTable.TextPadding),
-                    PaddingBottom = UDim.new(0, DialogTable.TextPadding),
+                    PaddingLeft = UDim.new(0, DialogTable.TextPadding/2),
+                    PaddingRight = UDim.new(0, DialogTable.TextPadding/2),
+                    PaddingBottom = UDim.new(0, DialogTable.TextPadding/2),
                 })
             })
         end
@@ -1215,13 +1249,19 @@ return function(Config)
             LayoutOrder = 4,
         }, {
             ButtonsLayout,
+            -- New("UIPadding", {
+            --     PaddingTop = UDim.new(0, DialogTable.TextPadding/2),
+            --     PaddingLeft = UDim.new(0, DialogTable.TextPadding/2),
+            --     PaddingRight = UDim.new(0, DialogTable.TextPadding/2),
+            --     PaddingBottom = UDim.new(0, DialogTable.TextPadding/2),
+            -- })
         })
         
         
         local Buttons = {}
 
         for _,Button in next, DialogTable.Buttons do
-            local ButtonFrame = CreateButton(Button.Title, Button.Icon, Button.Callback, Button.Variant, ButtonsContent, Dialog, true)
+            local ButtonFrame = CreateButton(Button.Title, Button.Icon, Button.Callback, Button.Variant, ButtonsContent, Dialog, false)
             table.insert(Buttons, ButtonFrame)
         end
         
@@ -1350,7 +1390,7 @@ return function(Config)
                 
                 Tween(Window.UIElements.Main, 0, {
                     Size = UDim2.new(
-                    0, math.clamp(newSize.X.Offset, 480, 700),
+                    0, math.clamp(newSize.X.Offset, 520, 700),
                     0, math.clamp(newSize.Y.Offset, 350, 520)
                 )}):Play()
             end

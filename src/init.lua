@@ -3,6 +3,7 @@ local WindUI = {
     Theme = nil,
     Creator = require("./modules/Creator"),
     LocalizationModule = require("./modules/Localization"),
+    NotificationModule = require("./components/Notification"),
     Themes = require("./themes/init"),
     Transparent = false,
     
@@ -11,9 +12,11 @@ local WindUI = {
     UIScale = 1,
     
     ConfigManager = nil,
-    Version = "1.6.4",
+    Version = "1.6.42",
     
-    Services = require("./utils/Services")
+    Services = require("./utils/services/Init"),
+    
+    OnThemeChangeFunction = nil,
 }
 
 
@@ -30,7 +33,7 @@ local Tween = Creator.Tween
 Creator.Themes = Themes
 
 local LocalPlayer = game:GetService("Players") and game:GetService("Players").LocalPlayer or nil
-WindUI.Themes = Themes
+--WindUI.Themes = Themes
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
@@ -84,14 +87,13 @@ Creator.Init(WindUI)
 
 math.clamp(WindUI.TransparencyValue, 0, 1)
 
-local Notify = require("./components/Notification")
-local Holder = Notify.Init(WindUI.NotificationGui)
+local Holder = WindUI.NotificationModule.Init(WindUI.NotificationGui)
 
 function WindUI:Notify(Config)
     Config.Holder = Holder.Frame
     Config.Window = WindUI.Window
-    Config.WindUI = WindUI
-    return Notify.New(Config)
+    --Config.WindUI = WindUI
+    return WindUI.NotificationModule.New(Config)
 end
 
 function WindUI:SetNotificationLower(Val)
@@ -100,6 +102,10 @@ end
 
 function WindUI:SetFont(FontId)
     Creator.UpdateFont(FontId)
+end
+
+function WindUI:OnThemeChange(func)
+    WindUI.OnThemeChangeFunction = func
 end
 
 function WindUI:AddTheme(LTheme)
@@ -111,6 +117,10 @@ function WindUI:SetTheme(Value)
     if Themes[Value] then
         WindUI.Theme = Themes[Value]
         Creator.SetTheme(Themes[Value])
+        
+        if WindUI.OnThemeChangeFunction then
+            WindUI.OnThemeChangeFunction(Value)
+        end
         --Creator.UpdateTheme()
         
         return Themes[Value]
@@ -213,9 +223,9 @@ function WindUI:CreateWindow(Config)
     
     local Theme = Themes[Config.Theme or "Dark"]
     
-    WindUI.Theme = Theme
-    
+    --WindUI.Theme = Theme
     Creator.SetTheme(Theme)
+    
     
     local hwid = gethwid or function()
         return game:GetService("Players").LocalPlayer.UserId

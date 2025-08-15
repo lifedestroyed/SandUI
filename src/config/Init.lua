@@ -1,9 +1,11 @@
 -- credits: dawid, extended functionality
 local HttpService = game:GetService("HttpService")
 
+local Window 
+
 local ConfigManager
 ConfigManager = {
-    Window = nil,
+    --Window = nil,
     Folder = nil,
     Path = nil,
     Configs = {},
@@ -90,16 +92,22 @@ ConfigManager = {
     }
 }
 
-function ConfigManager:Init(Window)
-    if not Window.Folder then
+function ConfigManager:Init(WindowTable)
+    if not WindowTable.Folder then
         warn("[ WindUI.ConfigManager ] Window.Folder is not specified.")
         return false
     end
     
-    ConfigManager.Window = Window
+    Window = WindowTable
     ConfigManager.Folder = Window.Folder
     ConfigManager.Path = "WindUI/" .. tostring(ConfigManager.Folder) .. "/config/"
-
+    
+    if not isfolder("WindUI/" .. ConfigManager.Folder) then
+        makefolder("WindUI/" .. ConfigManager.Folder)
+        if not isfolder("WindUI/" .. ConfigManager.Folder .. "/config/") then
+            makefolder("WindUI/" .. ConfigManager.Folder .. "/config/")
+        end
+    end
     
     local files = ConfigManager:AllConfigs()
     

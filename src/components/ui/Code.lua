@@ -188,6 +188,12 @@ function Code.New(Code, Title, Parent, Callback, UIScale)
             CopyButton.Button.ImageLabel.Image = CheckIcon[1]
             CopyButton.Button.ImageLabel.ImageRectSize = CheckIcon[2].ImageRectSize
             CopyButton.Button.ImageLabel.ImageRectOffset = CheckIcon[2].ImageRectPosition
+            
+            task.wait(1)
+            local CopyIcon = Creator.Icon("copy")
+            CopyButton.Button.ImageLabel.Image = CopyIcon[1]
+            CopyButton.Button.ImageLabel.ImageRectSize = CopyIcon[2].ImageRectSize
+            CopyButton.Button.ImageLabel.ImageRectOffset = CopyIcon[2].ImageRectPosition
         end
     end)
     return CodeModule

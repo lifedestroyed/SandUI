@@ -15,5 +15,13 @@ return {
         
         New = require("./PandaDevelopment").New
     },
+    luarmor = {
+        Name = "Luarmor",
+        Icon = "rbxassetid://130918283130165",
+        Args = {"ScriptId", "Discord"},
+        
+        
+        New = require("./Luarmor").New
+    },
     -- other Services...
 }

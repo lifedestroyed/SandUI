@@ -3,6 +3,7 @@ local Tag = {}
 
 local Creator = require("../../modules/Creator")
 local New = Creator.New
+local Tween = Creator.Tween
 
 local function Color3ToHSB(color)
 	local r, g, b = color.R, color.G, color.B
@@ -58,9 +59,9 @@ function Tag:New(TagConfig, Parent)
         Color = TagConfig.Color or Color3.fromHex("#315dff"),
         
         TagFrame = nil,
-        Height = 30,
-        Padding = 12,
-        TextSize = 16,
+        Height = 26,
+        Padding = 10,
+        TextSize = 14,
     }
     
     local TagTitle = New("TextLabel", {
@@ -89,6 +90,18 @@ function Tag:New(TagConfig, Parent)
         })
     })
     
+    
+    function TagModule:SetTitle(text)
+        TagModule.Title = text
+        TagTitle.Text = text
+    end
+    
+    function TagModule:SetColor(color) -- Color3
+        TagModule.Color = color
+        Tween(TagTitle, .06, {TextColor3 = GetTextColorForHSB(color)}):Play()
+        Tween(TagFrame, .06, {ImageColor3 = color}):Play()
+    
+    end
     
     return TagModule
 end

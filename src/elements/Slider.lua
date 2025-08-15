@@ -17,6 +17,9 @@ function Element:New(Config)
         Callback = Config.Callback or function() end,
         UIElements = {},
         IsFocusing = false,
+        
+        Width = 130,
+        TextBoxWidth = 30,
     }
     local isTouch
     local moveconnection
@@ -49,13 +52,13 @@ function Element:New(Config)
         Title = Slider.Title,
         Desc = Slider.Desc,
         Parent = Config.Parent,
-        TextOffset = 0,
+        TextOffset = Slider.Width,
         Hover = false,
     })
     
     Slider.UIElements.SliderIcon = Creator.NewRoundFrame(99, "Squircle", {
         ImageTransparency = .95,
-        Size = UDim2.new(1, -60-8, 0, 4),
+        Size = UDim2.new(1, -Slider.TextBoxWidth-8, 0, 4),
         Name = "Frame",
         ThemeTag = {
             ImageColor3 = "Text",
@@ -81,11 +84,12 @@ function Element:New(Config)
     })
     
     Slider.UIElements.SliderContainer = New("Frame", {
-        Size = UDim2.new(1, 0, 0, 0),
+        Size = UDim2.new(0, Slider.Width, 0, 0),
         AutomaticSize = "Y",
-        Position = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(1, 0, .5, 0),
+        AnchorPoint = Vector2.new(1,0.5),
         BackgroundTransparency = 1,
-        Parent = Slider.SliderFrame.UIElements.Container,
+        Parent = Slider.SliderFrame.UIElements.Main,
     }, {
         New("UIListLayout", {
             Padding = UDim.new(0, 8),
@@ -94,7 +98,7 @@ function Element:New(Config)
         }),
         Slider.UIElements.SliderIcon,
         New("TextBox", {
-            Size = UDim2.new(0,60,0,0),
+            Size = UDim2.new(0,Slider.TextBoxWidth,0,0),
             TextXAlignment = "Left",
             Text = FormatValue(Value),
             ThemeTag = {

@@ -26,7 +26,7 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback)
     
     local TextBox = New("TextBox", {
         BackgroundTransparency = 1,
-        TextSize = 16,
+        TextSize = 17,
         FontFace = Font.new(Creator.Font, Enum.FontWeight.Regular),
         Size = UDim2.new(1,IconInputFrame and -29 or 0,1,0),
         PlaceholderText = Placeholder,

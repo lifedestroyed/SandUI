@@ -9,10 +9,11 @@ local CreateButton = require("../ui/Button").New
 local CreateToolTip = require("../ui/Tooltip").New
 local CreateScrollSlider = require("../ui/ScrollSlider").New
 
+local Window, WindUI
 
 local TabModule = {
-    Window = nil,
-    WindUI = nil,
+    --Window = nil,
+    --WindUI = nil,
     Tabs = {}, 
     Containers = {},
     SelectedTab = nil,
@@ -23,9 +24,9 @@ local TabModule = {
     OnChangeFunc = function(v) end
 }
 
-function TabModule.Init(Window, WindUI, ToolTipParent, TabHighlight)
-    TabModule.Window = Window
-    TabModule.WindUI = WindUI
+function TabModule.Init(WindowTable, WindUITable, ToolTipParent, TabHighlight)
+    Window = WindowTable
+    WindUI = WindUITable
     TabModule.ToolTipParent = ToolTipParent
     TabModule.TabHighlight = TabHighlight
     return TabModule
@@ -46,13 +47,11 @@ function TabModule.New(Config)
         UIElements = {},
         Elements = {},
         ContainerFrame = nil,
-        UICorner = TabModule.Window.UICorner-(TabModule.Window.UIPadding/2),
+        UICorner = Window.UICorner-(Window.UIPadding/2),
     }
     
-    local Window = TabModule.Window
-    local WindUI = TabModule.WindUI
-    
     TabModule.TabCount = TabModule.TabCount + 1
+    
 	local TabIndex = TabModule.TabCount
 	Tab.Index = TabIndex
 	
@@ -137,7 +136,7 @@ function TabModule.New(Config)
             Tab.Icon,
             Tab.Icon .. ":" .. Tab.Title,
             0,
-            TabModule.Window.Folder,
+            Window.Folder,
             Tab.__type,
             true,
             Tab.IconThemed
@@ -155,7 +154,7 @@ function TabModule.New(Config)
             Tab.Icon,
             Tab.Icon .. ":" .. Tab.Title,
             0,
-            TabModule.Window.Folder,
+            Window.Folder,
             Tab.__type,
             true,
             Tab.IconThemed

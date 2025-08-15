@@ -2,7 +2,7 @@
 
 --[[
 
-    Platoboost API   |   https://dash.platoboost.com/api1
+    Platoboost API   |   https://platoboost.com/
     
 ]]
 

@@ -32,7 +32,9 @@ function Element:New(Config)
         UIElements = {},
         
         Opened = false,
-        Tabs = {}
+        Tabs = {},
+        
+        Width = 130,
     }
     
     if Dropdown.Multi and not Dropdown.Value then
@@ -45,17 +47,19 @@ function Element:New(Config)
         Title = Dropdown.Title,
         Desc = Dropdown.Desc,
         Parent = Config.Parent,
-        TextOffset = 0,
+        TextOffset = Dropdown.Width,
         Hover = false,
     })
     
     
-    Dropdown.UIElements.Dropdown = CreateLabel("", nil, Dropdown.DropdownFrame.UIElements.Container)
+    Dropdown.UIElements.Dropdown = CreateLabel("", nil, Dropdown.DropdownFrame.UIElements.Main)
     
     Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.TextTruncate = "AtEnd"
     Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.Size = UDim2.new(1, Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.Size.X.Offset - 18 - 12 - 12,0,0)
     
-    Dropdown.UIElements.Dropdown.Size = UDim2.new(1,0,0,40)
+    Dropdown.UIElements.Dropdown.Size = UDim2.new(0,Dropdown.Width,0,40)
+    Dropdown.UIElements.Dropdown.Position = UDim2.new(1,0,0.5,0)
+    Dropdown.UIElements.Dropdown.AnchorPoint = Vector2.new(1,0.5)
     
     -- New("UIScale", {
     --     Parent = Dropdown.UIElements.Dropdown,
@@ -84,7 +88,7 @@ function Element:New(Config)
         ThemeTag = {
             ImageColor3 = "Background",
         },
-        ImageTransparency = 0.05,
+        ImageTransparency = 1, -- 0.05
         Size = UDim2.new(1,0,1,0),
         AnchorPoint = Vector2.new(1,0),
         Position = UDim2.new(1,0,0,0),
@@ -222,7 +226,7 @@ function Element:New(Config)
                 UIElements = {},
             }
             TabMain.UIElements.TabItem = Creator.NewRoundFrame(Element.MenuCorner - Element.MenuPadding, "Squircle", {
-                Size = UDim2.new(1,0,0,34),
+                Size = UDim2.new(1,0,0,36),
                 --AutomaticSize = "Y",
                 ImageTransparency = 1, -- .95
                 Parent = Dropdown.UIElements.Menu.Frame.ScrollingFrame,
@@ -416,7 +420,8 @@ function Element:New(Config)
                 Size = UDim2.new(
                     1, 0,
                     1, 0
-                )
+                ),
+                ImageTransparency = 0.05
             }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
             
             task.spawn(function()
@@ -437,12 +442,13 @@ function Element:New(Config)
             Size = UDim2.new(
                 1, 0,
                 0, 0
-            )
+            ),
+            ImageTransparency = 1,
         }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
         --Tween(DropdownIcon, .15, {Rotation = 0}):Play()
         --Tween(Dropdown.UIElements.MenuCanvas, .15, {GroupTransparency = 1}):Play()
         task.spawn(function()
-            task.wait(.2)
+            task.wait(.1)
             Dropdown.UIElements.Menu.Visible = false
         end)
         

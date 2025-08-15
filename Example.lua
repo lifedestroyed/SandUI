@@ -67,12 +67,50 @@ WindUI:Popup({
     }
 })
 
+
+-- Add your service to get key 
+--[[
+WindUI.Services.mysuperservicetogetkey = {
+    Name = "My Super Service",
+    Icon = "droplet", -- lucide or rbxassetid or raw link to img
+    
+    Args = { "ServiceId" }, --       <- \
+    --                                   |
+    -- important!!!!!!!!!!!!!!!          |
+    New = function(ServiceId) -- <------ | Args!!!!!!!!!!!!
+        
+        function validateKey(key) -- <--- this too important!!!
+            -- your function to validate key
+            -- see examples at src/utils/
+            
+            if not key then
+                return false, "Key is invalid!" 
+                
+            end
+            
+            return true, "Key is valid!" 
+        end
+        
+        function copyLink()
+            return setclipboard("link to key system service.")
+        end
+        
+        return {
+            -- ↓ do not change this!!1!1!1!1!1!!1!100
+            Verify = validateKey, -- <-----  THIS TOO IMPORTANT!!!!!
+            Copy = copyLink -- <-------- IMPORTANT!1!1!1!1!1!1!11!
+            -- ↑ do not change this!!1!1!1!1!1!!1!100
+        }
+    end
+}
+]]
+
 local Window = WindUI:CreateWindow({
     Title = "loc:WINDUI_EXAMPLE",
     Icon = "palette",
     Author = "loc:WELCOME",
     Folder = "WindUI_Example",
-    Size = UDim2.fromOffset(700, 500),
+    Size = UDim2.fromOffset(580, 490),
     Theme = "Dark",
     -- Background = WindUI:Gradient({
     --     ["0"] = { Color = Color3.fromHex("#0f0c29"), Transparency = 1 },
@@ -92,8 +130,45 @@ local Window = WindUI:CreateWindow({
             })
         end
     },
-    SideBarWidth = 220,
-    ScrollBarEnabled = true
+    SideBarWidth = 200,
+    -- KeySystem = { -- <- ↓ remove this all, if you dont neet the key system
+    --     -- Key = { "1234", "5678" },  
+    --     Note = "Example Key System. With platoboost, etc.",
+    --     -- URL = "https://github.com/Footagesus/WindUI",
+    --     -- Thumbnail = {
+    --     --     Image = "rbxassetid://",
+    --     --     Title = "Thumbnail",
+    --     -- },
+    --     API = {
+    --         {   
+    --             -- Title = "Platoboost", -- optional 
+    --             -- Desc = "Click to copy.", -- optional
+    --             -- Icon = "rbxassetid://", -- optional
+                
+    --             Type = "platoboost", -- type: platoboost, ...
+    --             ServiceId = 5541, -- service id
+    --             Secret = "1eda3b70-aab4-4394-82e4-4e7f507ae198", -- platoboost secret
+    --         },
+    --         {   
+    --             -- Title = "Other service", -- optional 
+    --             -- Desc = nil, -- optional
+    --             -- Icon = "rbxassetid://", -- optional
+                
+    --             Type = "pandadevelopment", -- type: platoboost, ...
+    --             ServiceId = "windui", -- service id
+    --         },
+    --         {   
+    --             Type = "luarmor",
+    --             ScriptId = "...",
+    --             Discord = "https://discord.com/invite/...",
+    --         },
+    --         { -- Custom service ( ↑↑ look at line 73 ↑↑ )
+    --             Type = "mysuperservicetogetkey",
+    --             ServiceId = 42,
+    --         }
+    --     },
+    --     SaveKey = true,
+    -- },
 })
 
 Window:Tag({
@@ -101,9 +176,32 @@ Window:Tag({
     Color = Color3.fromHex("#30ff6a")
 })
 Window:Tag({
-    Title = "UI Library",
-    --Color = Color3.fromHex("#30ff6a")
+    Title = "Beta",
+    Color = Color3.fromHex("#315dff")
 })
+local TimeTag = Window:Tag({
+    Title = "00:00",
+    Color = Color3.fromHex("#000000")
+})
+
+local hue = 0
+
+task.spawn(function()
+	while true do
+		local now = os.date("*t")
+		local hours = string.format("%02d", now.hour)
+		local minutes = string.format("%02d", now.min)
+		
+		hue = (hue + 0.01) % 1
+		local color = Color3.fromHSV(hue, 1, 1)
+		
+		TimeTag:SetTitle(hours .. ":" .. minutes)
+		TimeTag:SetColor(color)
+
+		task.wait(0.06)
+	end
+end)
+
 
 Window:CreateTopbarButton("theme-switcher", "moon", function()
     WindUI:SetTheme(WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark")
@@ -121,7 +219,7 @@ local Tabs = {
 }
 
 local TabHandles = {
-    Elements = Tabs.Main:Tab({ Title = "loc:UI_ELEMENTS", Icon = "layout-grid" }),
+    Elements = Tabs.Main:Tab({ Title = "loc:UI_ELEMENTS", Icon = "layout-grid", Desc = "UI Elements Example" }),
     Appearance = Tabs.Settings:Tab({ Title = "loc:APPEARANCE", Icon = "brush" }),
     Config = Tabs.Utilities:Tab({ Title = "loc:CONFIGURATION", Icon = "settings" })
 }
@@ -131,7 +229,7 @@ TabHandles.Elements:Paragraph({
     Desc = "Explore WindUI's powerful elements",
     Image = "component",
     ImageSize = 20,
-    Color = "White",
+    Color = Color3.fromHex("#30ff6a"),
 })
 
 TabHandles.Elements:Divider()
@@ -190,13 +288,14 @@ TabHandles.Elements:Button({
 })
 
 TabHandles.Elements:Colorpicker({
-    Title = "Accent Color",
-    Desc = "Change the UI accent color",
-    Default = Color3.fromHex("#6366f1"),
-    Callback = function(color)
+    Title = "Select Color",
+    --Desc = "Select coloe",
+    Default = Color3.fromHex("#30ff6a"),
+    Transparency = 0, -- enable transparency
+    Callback = function(color, transparency)
         WindUI:Notify({
             Title = "Color Changed",
-            Content = "New accent: "..color:ToHex(),
+            Content = "New color: "..color:ToHex().."\nTransparency: "..transparency,
             Duration = 2
         })
     end
@@ -245,7 +344,7 @@ local transparencySlider = TabHandles.Appearance:Slider({
     end
 })
 
-TabHandles.Appearance:Toggle({
+local ThemeToggle = TabHandles.Appearance:Toggle({
     Title = "Enable Dark Mode",
     Desc = "Use dark color scheme",
     Value = true,
@@ -254,6 +353,11 @@ TabHandles.Appearance:Toggle({
         themeDropdown:Select(state and "Dark" or "Light")
     end
 })
+
+WindUI:OnThemeChange(function(theme)
+    ThemeToggle:Set(theme == "Dark")
+end)
+
 
 TabHandles.Appearance:Button({
     Title = "Create New Theme",
@@ -292,7 +396,7 @@ TabHandles.Config:Input({
     Title = "Config Name",
     Value = configName,
     Callback = function(value)
-        configName = value
+        configName = value or "default"
     end
 })
 

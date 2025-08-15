@@ -24,6 +24,8 @@ function Element:New(Config)
         Callback = Config.Callback or function() end,
         ClearTextOnFocus = Config.ClearTextOnFocus or false,
         UIElements = {},
+        
+        Width = 130,
     }
     
     local CanCallback = true
@@ -32,14 +34,20 @@ function Element:New(Config)
         Title = Input.Title,
         Desc = Input.Desc,
         Parent = Config.Parent,
-        TextOffset = 0,
+        TextOffset = Input.Width,
         Hover = false,
     })
     
-    local InputComponent = CreateInput(Input.Placeholder, Input.InputIcon, Input.InputFrame.UIElements.Container, Input.Type, function(v)
+    local InputComponent = CreateInput(Input.Placeholder, Input.InputIcon, not Input.Type == "Input" and Input.InputFrame.UIElements.Container or Input.InputFrame.UIElements.Main, Input.Type, function(v)
         Input:Set(v)
     end)
-    InputComponent.Size = UDim2.new(1,0,0,Input.Type == "Input" and 42 or 42+56+50)
+    if Input.Type == "Input" then
+        InputComponent.Size = UDim2.new(0,Input.Width,0,42)
+        InputComponent.Position = UDim2.new(1,0,0.5,0)
+        InputComponent.AnchorPoint = Vector2.new(1,0.5)
+    else
+        InputComponent.Size = UDim2.new(1,0,0,42+56+50)
+    end
     
     New("UIScale", {
         Parent = InputComponent,
