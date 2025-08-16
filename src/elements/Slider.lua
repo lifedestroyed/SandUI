@@ -126,6 +126,8 @@ function Element:New(Config)
         Slider:Lock()
     end
     
+    local ScrollingFrameParent = Slider.SliderFrame.Parent:IsA("ScrollingFrame") and Slider.SliderFrame.Parent or Slider.SliderFrame.Parent.Parent.Parent
+    
     function Slider:Set(Value, input)
         if CanCallback then
             if not Slider.IsFocusing and not HoldingSlider and (not input or (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch)) then
@@ -144,7 +146,7 @@ function Element:New(Config)
     
                 if input then
                     isTouch = (input.UserInputType == Enum.UserInputType.Touch)
-                    Slider.SliderFrame.Parent.ScrollingEnabled = false
+                    ScrollingFrameParent.ScrollingEnabled = false
                     HoldingSlider = true
                     moveconnection = game:GetService("RunService").RenderStepped:Connect(function()
                         local inputPosition = isTouch and input.Position.X or game:GetService("UserInputService"):GetMouseLocation().X
@@ -164,7 +166,7 @@ function Element:New(Config)
                             moveconnection:Disconnect()
                             releaseconnection:Disconnect()
                             HoldingSlider = false
-                            Slider.SliderFrame.Parent.ScrollingEnabled = true
+                            ScrollingFrameParent.ScrollingEnabled = true
                         end
                     end)
                 end

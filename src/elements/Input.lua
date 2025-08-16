@@ -25,7 +25,7 @@ function Element:New(Config)
         ClearTextOnFocus = Config.ClearTextOnFocus or false,
         UIElements = {},
         
-        Width = 130,
+        Width = 150,
     }
     
     local CanCallback = true
@@ -42,7 +42,7 @@ function Element:New(Config)
         Input:Set(v)
     end)
     if Input.Type == "Input" then
-        InputComponent.Size = UDim2.new(0,Input.Width,0,42)
+        InputComponent.Size = UDim2.new(0,Input.Width,0,36)
         InputComponent.Position = UDim2.new(1,0,0.5,0)
         InputComponent.AnchorPoint = Vector2.new(1,0.5)
     else

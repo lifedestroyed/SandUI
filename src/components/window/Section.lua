@@ -121,7 +121,7 @@ function Section.New(SectionConfig, Parent, Folder, UIScale)
             ChevronIconFrame.Visible = true
         end
         TabConfig.Parent = SectionFrame.Content
-        return TabModule.New(TabConfig)
+        return TabModule.New(TabConfig, UIScale)
     end
     
     function SectionModule:Open()

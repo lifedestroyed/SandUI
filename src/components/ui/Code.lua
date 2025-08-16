@@ -179,6 +179,11 @@ function Code.New(Code, Title, Parent, Callback, UIScale)
         TextLabel.Text = Highlighter.run(code)
     end
     
+    function CodeModule.Destroy()
+        CodeFrame:Destroy()
+        CodeModule = nil
+    end
+    
     CodeModule.Set(Code)
 
     Creator.AddSignal(CopyButton.MouseButton1Click, function()

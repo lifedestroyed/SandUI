@@ -121,7 +121,7 @@ return function(Config)
         return New("TextLabel", {
             BackgroundTransparency = 1,
             Text = Title or "",
-            TextSize = Type == "Desc" and 15 or 17,
+            TextSize = Type == "Desc" and 14 or 16,
             TextXAlignment = "Left",
             ThemeTag = {
                 TextColor3 = not Element.Color and "Text" or nil,

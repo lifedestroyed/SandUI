@@ -4,8 +4,8 @@
     "main": "main.lua",
     "repository": "https://github.com/Footagesus/WindUI",
     "scripts": {
-        "dev": "darklua process main.lua dist/main.lua --config darklua.dev.config.json && lua build/init.lua",
-        "build": "darklua process src/init.lua dist/main.lua --config darklua.dev.config.json && lua build/init.lua",
+        "dev": "darklua process main.lua dist/main.lua --config build/darklua.dev.config.json && lua build/init.lua",
+        "build": "darklua process src/init.lua dist/main.lua --config build/darklua.dev.config.json && lua build/init.lua",
         "live": "python -m http.server 8642",
         "watch": "chokidar . -i 'node_modules' -i 'dist' -c 'npm run dev'",
         "live-build": "concurrently \"npm run live\" \"npm run watch\""

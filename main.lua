@@ -236,10 +236,14 @@ TabHandles.Elements:Paragraph({
 
 TabHandles.Elements:Divider()
 
+local ElementsSection = TabHandles.Elements:Section({
+    Title = "Section Example"
+})
+
 local toggleState = false
-local featureToggle = TabHandles.Elements:Toggle({
-    Title = "Enable Advanced Features",
-    Desc = "Unlocks additional functionality",
+local featureToggle = ElementsSection:Toggle({
+    Title = "Enable Features",
+    --Desc = "Unlocks additional functionality",
     Value = false,
     Callback = function(state) 
         toggleState = state
@@ -252,7 +256,7 @@ local featureToggle = TabHandles.Elements:Toggle({
     end
 })
 
-local intensitySlider = TabHandles.Elements:Slider({
+local intensitySlider = ElementsSection:Slider({
     Title = "Effect Intensity",
     Desc = "Adjust the effect strength",
     Value = { Min = 0, Max = 100, Default = 50 },
@@ -261,7 +265,7 @@ local intensitySlider = TabHandles.Elements:Slider({
     end
 })
 
-local modeDropdown = TabHandles.Elements:Dropdown({
+local modeDropdown = ElementsSection:Dropdown({
     Title = "Select Mode",
     Values = { "Standard", "Advanced", "Expert" },
     Value = "Standard",
@@ -274,9 +278,9 @@ local modeDropdown = TabHandles.Elements:Dropdown({
     end
 })
 
-TabHandles.Elements:Divider()
+ElementsSection:Divider()
 
-TabHandles.Elements:Button({
+ElementsSection:Button({
     Title = "Show Notification",
     Icon = "bell",
     Callback = function()
@@ -289,7 +293,7 @@ TabHandles.Elements:Button({
     end
 })
 
-TabHandles.Elements:Colorpicker({
+ElementsSection:Colorpicker({
     Title = "Select Color",
     --Desc = "Select coloe",
     Default = Color3.fromHex("#30ff6a"),
@@ -300,6 +304,14 @@ TabHandles.Elements:Colorpicker({
             Content = "New color: "..color:ToHex().."\nTransparency: "..transparency,
             Duration = 2
         })
+    end
+})
+
+ElementsSection:Code({
+    Title = "my_code.luau",
+    Code = [[print("Hello world!")]],
+    OnCopy = function()
+        print("Copied to clipboard!")
     end
 })
 
@@ -317,11 +329,17 @@ for themeName, _ in pairs(WindUI:GetThemes()) do
 end
 table.sort(themes)
 
+local canchangetheme = true
+local canchangedropdown = true
+
+
+
 local themeDropdown = TabHandles.Appearance:Dropdown({
     Title = "loc:THEME_SELECT",
     Values = themes,
     Value = "Dark",
     Callback = function(theme)
+        canchangedropdown = false
         WindUI:SetTheme(theme)
         WindUI:Notify({
             Title = "Theme Applied",
@@ -329,6 +347,7 @@ local themeDropdown = TabHandles.Appearance:Dropdown({
             Icon = "palette",
             Duration = 2
         })
+        canchangedropdown = true
     end
 })
 
@@ -341,8 +360,8 @@ local transparencySlider = TabHandles.Appearance:Slider({
     },
     Step = 0.1,
     Callback = function(value)
-        Window:ToggleTransparency(tonumber(value) > 0)
         WindUI.TransparencyValue = tonumber(value)
+        Window:ToggleTransparency(tonumber(value) > 0)
     end
 })
 
@@ -351,13 +370,19 @@ local ThemeToggle = TabHandles.Appearance:Toggle({
     Desc = "Use dark color scheme",
     Value = true,
     Callback = function(state)
-        WindUI:SetTheme(state and "Dark" or "Light")
-        themeDropdown:Select(state and "Dark" or "Light")
+        if canchangetheme then
+            WindUI:SetTheme(state and "Dark" or "Light")
+        end
+        if canchangedropdown then
+            themeDropdown:Select(state and "Dark" or "Light")
+        end
     end
 })
 
 WindUI:OnThemeChange(function(theme)
+    canchangetheme = false
     ThemeToggle:Set(theme == "Dark")
+    canchangetheme = true
 end)
 
 

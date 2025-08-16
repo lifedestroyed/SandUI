@@ -34,7 +34,7 @@ function Element:New(Config)
         Opened = false,
         Tabs = {},
         
-        Width = 130,
+        Width = 150,
     }
     
     if Dropdown.Multi and not Dropdown.Value then
@@ -57,7 +57,7 @@ function Element:New(Config)
     Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.TextTruncate = "AtEnd"
     Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.Size = UDim2.new(1, Dropdown.UIElements.Dropdown.Frame.Frame.TextLabel.Size.X.Offset - 18 - 12 - 12,0,0)
     
-    Dropdown.UIElements.Dropdown.Size = UDim2.new(0,Dropdown.Width,0,40)
+    Dropdown.UIElements.Dropdown.Size = UDim2.new(0,Dropdown.Width,0,36)
     Dropdown.UIElements.Dropdown.Position = UDim2.new(1,0,0.5,0)
     Dropdown.UIElements.Dropdown.AnchorPoint = Vector2.new(1,0.5)
     

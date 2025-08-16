@@ -59,7 +59,7 @@ function PopupModule.new(PopupConfig)
         },
         TextSize = 20,
         TextWrapped = true,
-        Size = UDim2.new(1, IconFrame and -Popup.IconSize or 0,0,0)
+        Size = UDim2.new(1, IconFrame and -Popup.IconSize-14 or 0,0,0)
     })
 
     local IconAndTitleContainer = New("Frame", {

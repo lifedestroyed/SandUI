@@ -1,16 +1,6 @@
-# 1.6.42
+# 1.6.43
 ## Changelog:
-- Now you can paste your Color into the `Paragraph` element
-- Added Luarmor to Key System (possibly with errors)
-- Added `:SetTitle()` and `:SetAuthor()` to `Window`
-- Added `:SetTitle()` and `:SetColor()` to `Tag`
-- Added `:OnThemeChange()` to `WindUI`
-- Remake Notifications
-- Fixed Localizations
+- Now you can create elements in `Section` element. (not tab section)
+- Added `:Destroy()` to `Code` Element
+- Added `OnCopy` to `Code` Element
 - Fixed Bugs
-- Fixed Window Close Bug
-- Remake Colorpicker
-- Remake Elements
-- Remake Tooltip
-- Remake Dialog
-- Remake Tag
