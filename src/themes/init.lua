@@ -101,4 +101,44 @@ return {
         Button = "#10b981",         -- emerald-500
         Icon = "#a7f3d0",           -- emerald-200
     },
+    Midnight = {
+        Name = "Midnight",
+        Accent = "#1e3a8a",         -- deep blue accent
+        Outline = "#93c5fd",        -- light blue outline
+        Text = "#bfdbfe",           -- soft blue text
+        Placeholder = "#60a5fa",    -- medium blue placeholder
+        Background = "#0f172a",     -- dark navy background
+        Button = "#2563eb",         -- bright blue button
+        Icon = "#3b82f6",           -- standard blue icon
+    },
+    Crimson = {
+        Name = "Crimson",
+        Accent = "#d32f2f",         -- crimson red
+        Outline = "#ff5252",        -- light red
+        Text = "#f5f5f5",           -- near white text
+        Placeholder = "#9e9e9e",    -- gray placeholder
+        Background = "#121212",     -- dark background
+        Button = "#b71c1c",         -- deep crimson button
+        Icon = "#e53935",           -- lighter crimson icon
+    },
+    MonokaiPro = {
+        Name = "Monokai Pro",
+        Accent = "#fc9867",         -- orange accent
+        Outline = "#727072",        -- gray outline
+        Text = "#f5f4f1",           -- soft light text
+        Placeholder = "#939293",    -- gray placeholder
+        Background = "#2d2a2e",     -- dark monokai background
+        Button = "#ab9df2",         -- purple button
+        Icon = "#78dce8",           -- cyan icon
+    },
+    CottonCandy = {
+        Name = "Cotton Candy",
+        Accent = "#FF95B3",         -- pink accent
+        Outline = "#A98CF6",        -- lavender outline
+        Text = "#E68AAC",           -- soft pink text
+        Placeholder = "#87D7FF",    -- pastel blue placeholder
+        Background = "#EDEEFF",     -- very light background
+        Button = "#F5B0DE",         -- candy pink button
+        Icon = "#78E0E8",           -- aqua icon
+    },
 }
