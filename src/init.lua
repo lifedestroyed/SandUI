@@ -11,8 +11,8 @@ local WindUI = {
     
     UIScale = 1,
     
-    ConfigManager = nil,
-    Version = "1.6.42",
+    --ConfigManager = nil,
+    Version = "1.6.44",
     
     Services = require("./utils/services/Init"),
     

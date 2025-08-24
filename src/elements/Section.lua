@@ -21,8 +21,12 @@ function Element:New(Config)
         Expandable = false,
     }
     
+    local Icon
+
+    
     function Section:SetIcon(i)
-        Section.Icon = Icon or nil
+        Section.Icon = i or nil
+        if Icon then Icon:Destroy() end
         if i then
             Icon = Creator.Image(
                 i,
@@ -34,7 +38,6 @@ function Element:New(Config)
             )
             Icon.Size = UDim2.new(0,Section.IconSize,0,Section.IconSize)
         end
-        if Icon then Icon:Destroy() end
     end
     
     local ChevronIconFrame = New("Frame", {
@@ -56,7 +59,6 @@ function Element:New(Config)
     })
     
     
-    local Icon
     if Section.Icon then
         Section:SetIcon(Section.Icon)
     end

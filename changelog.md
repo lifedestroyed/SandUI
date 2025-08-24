@@ -1,6 +1,4 @@
-# 1.6.43
+# 1.6.44
 ## Changelog:
-- Now you can create elements in `Section` element. (not tab section)
-- Added `:Destroy()` to `Code` Element
-- Added `OnCopy` to `Code` Element
-- Fixed Bugs
+- Fixed Section icon
+- Added themes from #23

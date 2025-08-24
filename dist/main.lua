@@ -910,7 +910,48 @@ Background="#064e3b",
 Button="#10b981",
 Icon="#a7f3d0",
 },
+Midnight={
+Name="Midnight",
+Accent="#1e3a8a",
+Outline="#93c5fd",
+Text="#bfdbfe",
+Placeholder="#60a5fa",
+Background="#0f172a",
+Button="#2563eb",
+Icon="#3b82f6",
+},
+Crimson={
+Name="Crimson",
+Accent="#d32f2f",
+Outline="#ff5252",
+Text="#f5f5f5",
+Placeholder="#9e9e9e",
+Background="#121212",
+Button="#b71c1c",
+Icon="#e53935",
+},
+MonokaiPro={
+Name="Monokai Pro",
+Accent="#fc9867",
+Outline="#727072",
+Text="#f5f4f1",
+Placeholder="#939293",
+Background="#2d2a2e",
+Button="#ab9df2",
+Icon="#78dce8",
+},
+CottonCandy={
+Name="Cotton Candy",
+Accent="#FF95B3",
+Outline="#A98CF6",
+Text="#f6d5e1",
+Placeholder="#87D7FF",
+Background="#492C37",
+Button="#F5B0DE",
+Icon="#78E0E8",
+},
 }end function a.e()
+
 
 
 
@@ -6187,23 +6228,26 @@ Elements={},
 Expandable=false,
 }
 
-function ai.SetIcon(aj,ak)
-ai.Icon=Icon or nil
-if ak then
-Icon=aa.Image(
-ak,
-ak..":"..ai.Title,
+local aj
+
+
+function ai.SetIcon(ak,al)
+ai.Icon=al or nil
+if aj then aj:Destroy()end
+if al then
+aj=aa.Image(
+al,
+al..":"..ai.Title,
 0,
 ah.Window.Folder,
 ai.__type,
 true
 )
-Icon.Size=UDim2.new(0,ai.IconSize,0,ai.IconSize)
+aj.Size=UDim2.new(0,ai.IconSize,0,ai.IconSize)
 end
-if Icon then Icon:Destroy()end
 end
 
-local aj=ac("Frame",{
+local ak=ac("Frame",{
 Size=UDim2.new(0,ai.IconSize,0,ai.IconSize),
 BackgroundTransparency=1,
 Visible=false
@@ -6222,7 +6266,6 @@ ImageTransparency=.7,
 })
 
 
-local ak
 if ai.Icon then
 ai:SetIcon(ai.Icon)
 end
@@ -6241,7 +6284,7 @@ FontFace=Font.new(aa.Font,Enum.FontWeight.SemiBold),
 Text=ai.Title,
 Size=UDim2.new(
 1,
-ak and(-ai.IconSize-8)*2
+aj and(-ai.IconSize-8)*2
 or(-ai.IconSize-8),
 
 1,
@@ -6262,19 +6305,19 @@ Size=UDim2.new(1,0,0,ai.HeaderSize),
 BackgroundTransparency=1,
 Text="",
 },{
-ak,
+aj,
 al,
 ac("UIListLayout",{
 Padding=UDim.new(0,8),
 FillDirection="Horizontal",
 VerticalAlignment="Center",
-HorizontalAlignment=not ak and ai.TextXAlignment or"Left",
+HorizontalAlignment=not aj and ai.TextXAlignment or"Left",
 }),
 ac("UIPadding",{
 PaddingTop=UDim.new(0,4),
 PaddingBottom=UDim.new(0,2),
 }),
-aj,
+ak,
 }),
 ac("Frame",{
 BackgroundTransparency=1,
@@ -6303,7 +6346,7 @@ local an=ah.ElementsModule
 an.Load(ai,am.Content,an.Elements,ah.Window,ah.WindUI,function()
 if not ai.Expandable then
 ai.Expandable=true
-aj.Visible=true
+ak.Visible=true
 end
 end)
 
@@ -6334,7 +6377,7 @@ ae(am,0.33,{
 Size=UDim2.new(1,0,0,ai.HeaderSize+(am.Content.AbsoluteSize.Y/ah.UIScale))
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-ae(aj.ImageLabel,0.1,{Rotation=180},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ae(ak.ImageLabel,0.1,{Rotation=180},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end
 function ai.Close(ao)
@@ -6343,7 +6386,7 @@ ai.Opened=false
 ae(am,0.26,{
 Size=UDim2.new(1,0,0,ai.HeaderSize)
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-ae(aj.ImageLabel,0.1,{Rotation=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ae(ak.ImageLabel,0.1,{Rotation=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end
 
@@ -7634,8 +7677,9 @@ local ao=af("UICorner",{
 CornerRadius=UDim.new(0,an.UICorner)
 })
 
+if an.Folder then
 an.ConfigManager=al:Init(an)
-
+end
 
 
 local ap=af("Frame",{
@@ -9033,8 +9077,8 @@ TransparencyValue=.15,
 
 UIScale=1,
 
-ConfigManager=nil,
-Version="1.6.42",
+
+Version="1.6.44",
 
 Services=a.load'h',
 

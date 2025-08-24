@@ -78,8 +78,9 @@ return function(Config)
         CornerRadius = UDim.new(0,Window.UICorner)
     })
 
-    Window.ConfigManager = ConfigManager:Init(Window)
-    
+    if Window.Folder then 
+        Window.ConfigManager = ConfigManager:Init(Window)
+    end
     
 
     local ResizeHandle = New("Frame", {

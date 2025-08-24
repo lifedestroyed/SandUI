@@ -237,7 +237,8 @@ TabHandles.Elements:Paragraph({
 TabHandles.Elements:Divider()
 
 local ElementsSection = TabHandles.Elements:Section({
-    Title = "Section Example"
+    Title = "Section Example",
+    Icon = "bird",
 })
 
 local toggleState = false

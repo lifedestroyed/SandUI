@@ -135,9 +135,9 @@ return {
         Name = "Cotton Candy",
         Accent = "#FF95B3",         -- pink accent
         Outline = "#A98CF6",        -- lavender outline
-        Text = "#E68AAC",           -- soft pink text
+        Text = "#f6d5e1",           -- soft pink text
         Placeholder = "#87D7FF",    -- pastel blue placeholder
-        Background = "#EDEEFF",     -- very light background
+        Background = "#492C37",     -- very dark background
         Button = "#F5B0DE",         -- candy pink button
         Icon = "#78E0E8",           -- aqua icon
     },
