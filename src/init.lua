@@ -163,7 +163,7 @@ function WindUI:SetLanguage(Value)
 end
 
 function WindUI:ToggleAcrylic(Value)
-	if WindUI.Window then
+	if WindUI.Window and WindUI.Window.AcrylicPaint then
 		WindUI.Window.Acrylic = Value
 		WindUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
 		if Value then
