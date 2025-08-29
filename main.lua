@@ -130,7 +130,7 @@ local Window = WindUI:CreateWindow({
             })
         end
     },
-    Acrylic = true,
+    Acrylic = false,
     HideSearchBar = false,
     SideBarWidth = 200,
     -- KeySystem = { -- <- Ã¢â€ â€œ remove this all, if you dont neet the key system

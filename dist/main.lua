@@ -9732,7 +9732,7 @@ return false
 end
 
 function aa.ToggleAcrylic(ar,as)
-if aa.Window and aa.Window.AcrylicPaint then
+if aa.Window and aa.Window.AcrylicPaint and aa.Window.AcrylicPaint.Model then
 aa.Window.Acrylic=as
 aa.Window.AcrylicPaint.Model.Transparency=as and 0.98 or 1
 if as then
