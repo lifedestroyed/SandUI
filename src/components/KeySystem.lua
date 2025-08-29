@@ -16,7 +16,7 @@ function KeySystem.new(Config, Filename, func)
     
     local EnteredKey
     
-    local ThumbnailSize = 200
+    local ThumbnailSize = (Config.KeySystem.Thumbnail and Config.KeySystem.Thumbnail.Width) or 200
     
     local UISize = 430
     if Config.KeySystem.Thumbnail and Config.KeySystem.Thumbnail.Image then
@@ -151,13 +151,14 @@ function KeySystem.new(Config, Filename, func)
         ThumbnailFrame = New("ImageLabel", {
             Image = Config.KeySystem.Thumbnail.Image,
             BackgroundTransparency = 1,
-            Size = UDim2.new(0,ThumbnailSize,1,0),
+            Size = UDim2.new(0,ThumbnailSize,1,-12),
+            Position = UDim2.new(0,6,0,6),
             Parent = KeyDialog.UIElements.Main,
             ScaleType = "Crop"
         }, {
             ThumbnailTitle,
             New("UICorner", {
-                CornerRadius = UDim.new(0,0),
+                CornerRadius = UDim.new(0,26-6),
             })
         })
     end
@@ -202,7 +203,7 @@ function KeySystem.new(Config, Filename, func)
     if ThumbnailFrame then
         ExitButton.Parent = ThumbnailFrame
         ExitButton.Size = UDim2.new(0,0,0,42)
-        ExitButton.Position = UDim2.new(0,16,1,-16)
+        ExitButton.Position = UDim2.new(0,10,1,-10)
         ExitButton.AnchorPoint = Vector2.new(0,1)
     end
     

@@ -1,4 +1,6 @@
-{
+-- Generated from package.json | build/build.sh 
+
+return [[{
     "name": "windui",
     "version": "1.6.45",
     "main": "./dist/main.lua",
@@ -25,4 +27,4 @@
         "chokidar-cli": "^3.0.0",
         "concurrently": "^9.2.0"
     }
-}
+}]]

@@ -41,6 +41,7 @@ function PopupModule.new(PopupConfig)
             0,
             PopupConfig.WindUI.Window,
             "Popup",
+            true,
             PopupConfig.IconThemed
         )
         IconFrame.Size = UDim2.new(0,Popup.IconSize,0,Popup.IconSize)

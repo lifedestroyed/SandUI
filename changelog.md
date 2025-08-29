@@ -1,4 +1,11 @@
-# 1.6.44
+# 1.6.45
 ## Changelog:
-- Fixed Section icon
-- Added themes from #23
+- Now you can make Gradient Background for `Tag`
+- Some Changes in build
+- SearchBar UI Changes
+- Fixed some bugs
+- Added `WindUI:ToggleAcrylic(--[[boolean]])`
+- Added `Width` to `KeySystem.Thumbnail`
+- Added `Radius` to `Tag`
+- Added `Acrylic` to `Window`
+- Added More Icons (geist, craft)

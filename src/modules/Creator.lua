@@ -10,8 +10,9 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalizationService = game:GetService("LocalizationService")
 
-local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main.lua"))()
+local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
 Icons.SetIconsType("lucide")
+
 
 local WindUI
 
@@ -334,7 +335,7 @@ function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton)
 
     local function UpdateSliceScale(newRadius)
         local sliceScale = Type ~= "Shadow-sm" and (newRadius / (512/2)) or (newRadius/512)
-        Image.SliceScale = sliceScale
+        Image.SliceScale = math.max(sliceScale, 0.0001)
     end
     
     UpdateSliceScale(Radius)
@@ -419,6 +420,8 @@ function Creator.Drag(mainFrame, dragFrames, ondrag)
     return DragModule
 end
 
+Icons.Init(New, "Icon")
+
 function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
     local function SanitizeFilename(str)
         str = str:gsub("[%s/\\:*?\"<>|]+", "-")
@@ -448,11 +451,22 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
         })
     })
     if Creator.Icon(Img) then
-        ImageFrame.ImageLabel.Image = Creator.Icon(Img)[1]
-        ImageFrame.ImageLabel.ImageRectOffset = Creator.Icon(Img)[2].ImageRectPosition
-        ImageFrame.ImageLabel.ImageRectSize = Creator.Icon(Img)[2].ImageRectSize
-    end
-    if string.find(Img,"http") then
+        -- ImageFrame.ImageLabel.Image = Creator.Icon(Img)[1]
+        -- ImageFrame.ImageLabel.ImageRectOffset = Creator.Icon(Img)[2].ImageRectPosition
+        -- ImageFrame.ImageLabel.ImageRectSize = Creator.Icon(Img)[2].ImageRectSize
+        
+        ImageFrame.ImageLabel:Destroy()
+        
+        local IconLabel = Icons.Image({ 
+            Icon = Img, 
+            Size = UDim2.new(1,0,1,0), 
+            Colors = { 
+                (IsThemeTag and "Icon" or false),
+                "Button" 
+            } 
+        }).IconFrame
+        IconLabel.Parent = ImageFrame
+    elseif string.find(Img,"http") then
         local FileName = "WindUI/" .. Folder .. "/Assets/." .. Type .. "-" .. Name .. ".png"
         local success, response = pcall(function()
             task.spawn(function()
@@ -472,7 +486,7 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
             
             ImageFrame:Destroy()
         end
-    elseif string.find(Img,"rbxassetid") then
+    else
         ImageFrame.ImageLabel.Image = Img
     end
     

@@ -4,6 +4,8 @@ local RunService = game:GetService("RunService")
 
 local CurrentCamera = workspace.CurrentCamera
 
+local Acrylic = require("../../utils/Acrylic/Init")
+
 local Creator = require("../../modules/Creator")
 local New = Creator.New
 local Tween = Creator.Tween
@@ -37,6 +39,7 @@ return function(Config)
         HideSearchBar = Config.HideSearchBar,
         ScrollBarEnabled = Config.ScrollBarEnabled or false,
 		SideBarWidth = Config.SideBarWidth or 200,
+		Acrylic = Config.Acrylic or false,
         
         Position = UDim2.new(0.5, 0,0.5, 0),
 		IconSize = 22,
@@ -52,6 +55,7 @@ return function(Config)
 		IsOpenButtonEnabled = true,
 
         ConfigManager = nil,
+		AcrylicPaint = nil,
 		CurrentTab = nil,
 		TabModule = nil,
 		
@@ -82,6 +86,11 @@ return function(Config)
         Window.ConfigManager = ConfigManager:Init(Window)
     end
     
+    
+    
+    local AcrylicPaint, BlurModule = Acrylic.AcrylicPaint({ UseAcrylic = Window.Acrylic })
+
+    Window.AcrylicPaint = AcrylicPaint
 
     local ResizeHandle = New("Frame", {
         Size = UDim2.new(0,32,0,32),
@@ -508,6 +517,7 @@ return function(Config)
         AnchorPoint = Vector2.new(0.5,0.5),
         Active = true,
     }, {
+        Window.AcrylicPaint.Frame,
         Blur,
         Creator.NewRoundFrame(Window.UICorner, "Squircle", {
             ImageTransparency = 1, -- Window.Transparent and 0.25 or 0
@@ -808,7 +818,7 @@ return function(Config)
             -- end
         else
             OpenButtonMain:SetIcon(Window.Icon)
-            OpenButtonIcon.Visible = false
+            --OpenButtonIcon.Visible = false
         end
     end)
     
@@ -905,6 +915,10 @@ return function(Config)
     function Window:OnDestroy(func)
         Window.OnDestroyCallback = func
     end
+    
+--     if Config.WindUI.UseAcrylic then
+--		Window.AcrylicPaint.AddParent(Window.UIElements.Main)
+--	end
 
     function Window:Open()
         task.spawn(function()
@@ -959,6 +973,8 @@ return function(Config)
             task.spawn(function()
                 task.wait(.05)
                 Window.UIElements.Main:WaitForChild("Main").Visible = true
+                
+                Config.WindUI:ToggleAcrylic(true)
             end)
         end)
     end
@@ -970,6 +986,8 @@ return function(Config)
                 Creator.SafeCallback(Window.OnCloseCallback)
             end)
         end
+        
+        Config.WindUI:ToggleAcrylic(false)
         
         Window.UIElements.Main:WaitForChild("Main").Visible = false
         
@@ -1020,6 +1038,9 @@ return function(Config)
                     Creator.SafeCallback(Window.OnDestroyCallback)
                 end)
             end
+            if Window.AcrylicPaint.Model then
+                Window.AcrylicPaint.Model:Destroy()
+            end
             Window.Destroyed = true
             task.wait(0.4)
             Config.Parent.Parent:Destroy()
@@ -1028,6 +1049,9 @@ return function(Config)
         end
         
         return Close
+    end
+    function Window:Destroy()
+        Window:Close():Destroy()
     end
     
     function Window:ToggleTransparency(Value)

@@ -12,13 +12,22 @@ local WindUI = {
     UIScale = 1,
     
     --ConfigManager = nil,
-    Version = "1.6.44",
+    Version = "1.6.45",
     
     Services = require("./utils/services/Init"),
     
     OnThemeChangeFunction = nil,
 }
 
+
+local HttpService = game:GetService("HttpService")
+
+
+local Package = HttpService:JSONDecode(require("../build/package"))
+if Package then
+    WindUI.Version = Package.version
+    --print(Package.name)
+end
 
 local KeySystem = require("./components/KeySystem")
 
@@ -31,6 +40,8 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 Creator.Themes = Themes
+
+local Acrylic = require("./utils/Acrylic/Init")
 
 local LocalPlayer = game:GetService("Players") and game:GetService("Players").LocalPlayer or nil
 --WindUI.Themes = Themes
@@ -151,6 +162,18 @@ function WindUI:SetLanguage(Value)
     return false
 end
 
+function WindUI:ToggleAcrylic(Value)
+	if WindUI.Window then
+		WindUI.Window.Acrylic = Value
+		WindUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
+		if Value then
+			Acrylic.Enable()
+		else
+			Acrylic.Disable()
+		end
+	end
+end
+
 
 WindUI:SetTheme("Dark")
 WindUI:SetLanguage(Creator.Language)
@@ -242,8 +265,8 @@ function WindUI:CreateWindow(Config)
     
         local keyPath = Config.Folder .. "/" .. Filename .. ".key"
     
-        if not Config.KeySystem.API and Config.KeySystem.SaveKey and Config.Folder then
-            if isfile(keyPath) then
+        if not Config.KeySystem.API then
+            if Config.KeySystem.SaveKey and isfile(keyPath) then
                 local savedKey = readfile(keyPath)
                 local isKey = (type(Config.KeySystem.Key) == "table")
                     and table.find(Config.KeySystem.Key, savedKey)
@@ -294,6 +317,9 @@ function WindUI:CreateWindow(Config)
     WindUI.Transparent = Config.Transparent
     WindUI.Window = Window
     
+    if Config.Acrylic then
+        Acrylic.init()
+    end
     
     -- function Window:ToggleTransparency(Value)
     --     WindUI.Transparent = Value

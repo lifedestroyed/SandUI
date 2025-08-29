@@ -8,6 +8,7 @@ return {
         Placeholder = "#999999",
         Background = "#101010",
         Button = "#52525b",
+        --Primary = "#30ff6a",
         Icon = "#a1a1aa",
     },
     Light = {

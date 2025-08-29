@@ -52,11 +52,25 @@ local function GetTextColorForHSB(color)
 	end
 end
 
+local function GetAverageColor(gradient)
+    local r, g, b = 0, 0, 0
+    local keypoints = gradient.Color.Keypoints
+    for _, k in ipairs(keypoints) do
+        -- bruh
+        r = r + k.Value.R
+        g = g + k.Value.G
+        b = b + k.Value.B
+    end
+    local n = #keypoints
+    return Color3.new(r/n, g/n, b/n)
+end
+
 
 function Tag:New(TagConfig, Parent)
     local TagModule = {
         Title = TagConfig.Title or "Tag",
         Color = TagConfig.Color or Color3.fromHex("#315dff"),
+        Radius = TagConfig.Radius or 999,
         
         TagFrame = nil,
         Height = 26,
@@ -70,15 +84,30 @@ function Tag:New(TagConfig, Parent)
         TextSize = TagModule.TextSize,
         FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
         Text = TagModule.Title,
-        TextColor3 = GetTextColorForHSB(TagModule.Color)
+        TextColor3 = typeof(TagModule.Color) == "Color3" and GetTextColorForHSB(TagModule.Color) or nil,
     })
     
-    local TagFrame = Creator.NewRoundFrame(999, "Squircle", {
+    local BackgroundGradient
+    
+    if typeof(TagModule.Color) == "table" then
+        
+        BackgroundGradient = New("UIGradient")
+        for key, value in next, TagModule.Color do
+            BackgroundGradient[key] = value
+        end
+        
+        TagTitle.TextColor3 = GetTextColorForHSB(GetAverageColor(BackgroundGradient))
+    end
+    
+    
+    
+    local TagFrame = Creator.NewRoundFrame(TagModule.Radius, "Squircle", {
         AutomaticSize = "X",
         Size = UDim2.new(0,0,0,TagModule.Height),
         Parent = Parent,
-        ImageColor3 = TagModule.Color,
+        ImageColor3 = typeof(TagModule.Color) == "Color3" and TagModule.Color or Color3.new(1,1,1),
     }, {
+        BackgroundGradient,
         New("UIPadding", {
             PaddingLeft = UDim.new(0,TagModule.Padding),
             PaddingRight = UDim.new(0,TagModule.Padding),
@@ -96,12 +125,23 @@ function Tag:New(TagConfig, Parent)
         TagTitle.Text = text
     end
     
-    function TagModule:SetColor(color) -- Color3
+    function TagModule:SetColor(color)
         TagModule.Color = color
-        Tween(TagTitle, .06, {TextColor3 = GetTextColorForHSB(color)}):Play()
-        Tween(TagFrame, .06, {ImageColor3 = color}):Play()
-    
+        if typeof(color) == "table" then
+            local avgColor = GetAverageColor(color)
+            Tween(TagTitle, .06, { TextColor3 = GetTextColorForHSB(avgColor) }):Play()
+            local gradient = TagFrame:FindFirstChildOfClass("UIGradient") or New("UIGradient", { Parent = TagFrame })
+            for k, v in next, color do gradient[k] = v end
+            Tween(TagFrame, .06, { ImageColor3 = Color3.new(1,1,1) }):Play()
+        else
+            if BackgroundGradient then
+                BackgroundGradient:Destroy()
+            end
+            Tween(TagTitle, .06, { TextColor3 = GetTextColorForHSB(color) }):Play()
+            Tween(TagFrame, .06, { ImageColor3 = color }):Play()
+        end
     end
+    
     
     return TagModule
 end
