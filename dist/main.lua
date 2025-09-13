@@ -8904,7 +8904,9 @@ az.UserIcon.Frame.UserName.Text=aB and"anonymous"or game.Players.LocalPlayer.Nam
 end
 
 if ao.User.Enabled then
-
+ao.User:Enable()
+else
+ao.User:Disable()
 end
 
 if ao.User.Callback then

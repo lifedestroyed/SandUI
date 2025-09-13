@@ -420,7 +420,9 @@ return function(Config)
         end
         
         if Window.User.Enabled then
-            
+            Window.User:Enable()
+        else
+            Window.User:Disable()
         end
         
         if Window.User.Callback then

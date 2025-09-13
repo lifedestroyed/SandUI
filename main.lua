@@ -179,7 +179,7 @@ local Window = WindUI:CreateWindow({
 
 
 Window.User:SetAnonymous(true)
-Window.User:Disable()
+--Window.User:Disable()
 
 
 
