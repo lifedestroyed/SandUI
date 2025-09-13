@@ -44,7 +44,7 @@ function Element:New(Config)
                 })
             end
         end
-    end, Config.WindUI.UIScale)
+    end, Config.WindUI.UIScale, Code)
     
     function Code:SetCode(code)
         CodeElement.Set(code)

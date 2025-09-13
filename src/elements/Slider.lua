@@ -54,6 +54,10 @@ function Element:New(Config)
         Parent = Config.Parent,
         TextOffset = Slider.Width,
         Hover = false,
+        Tab = Config.Tab,
+        Index = Config.Index,
+        Window = Config.Window,
+        ElementTable = Slider,
     })
     
     Slider.UIElements.SliderIcon = Creator.NewRoundFrame(99, "Squircle", {
@@ -114,10 +118,12 @@ function Element:New(Config)
     })
 
     function Slider:Lock()
+        Slider.Locked = true
         CanCallback = false
         return Slider.SliderFrame:Lock()
     end
     function Slider:Unlock()
+        Slider.Locked = false
         CanCallback = true
         return Slider.SliderFrame:Unlock()
     end

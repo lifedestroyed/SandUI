@@ -8,6 +8,8 @@ local Tween = Creator.Tween
 local CreateToolTip = require("../ui/Tooltip").New
 local CreateScrollSlider = require("../ui/ScrollSlider").New
 
+
+
 local Window, WindUI, UIScale
 
 local TabModule = {
@@ -47,6 +49,8 @@ function TabModule.New(Config, UIScale)
         Elements = {},
         ContainerFrame = nil,
         UICorner = Window.UICorner-(Window.UIPadding/2),
+        
+        Gap = Window.NewElements and 1 or 6,
     }
     
     TabModule.TabCount = TabModule.TabCount + 1
@@ -180,14 +184,14 @@ function TabModule.New(Config, UIScale)
         ScrollingDirection = "Y",
     }, {
         New("UIPadding", {
-            PaddingTop = UDim.new(0,20),
-            PaddingLeft = UDim.new(0,20),
-            PaddingRight = UDim.new(0,20),
-            PaddingBottom = UDim.new(0,20),
+            PaddingTop = UDim.new(0,not Window.HidePanelBackground and 20 or 10),
+            PaddingLeft = UDim.new(0,not Window.HidePanelBackground and 20 or 10),
+            PaddingRight = UDim.new(0,not Window.HidePanelBackground and 20 or 10),
+            PaddingBottom = UDim.new(0,not Window.HidePanelBackground and 20 or 10),
         }),
         New("UIListLayout", {
             SortOrder = "LayoutOrder",
-            Padding = UDim.new(0,6),
+            Padding = UDim.new(0,Tab.Gap),
             HorizontalAlignment = "Center",
         })
     })
@@ -261,7 +265,9 @@ function TabModule.New(Config, UIScale)
 	    end
 	end)
 	
-    CreateScrollSlider(Tab.UIElements.ContainerFrame, Tab.UIElements.ContainerFrameCanvas, Window, 3)
+	if Window.ScrollBarEnabled then
+        CreateScrollSlider(Tab.UIElements.ContainerFrame, Tab.UIElements.ContainerFrameCanvas, Window, 3)
+	end
 
 	local ToolTip
     local hoverTimer
@@ -324,12 +330,53 @@ function TabModule.New(Config, UIScale)
     
 	-- yo
 	
-    local ElementsModule = require("../../elements/Init")
+    Tab.ElementsModule = require("../../elements/Init")
     
-    ElementsModule.Load(Tab, Tab.UIElements.ContainerFrame, ElementsModule.Elements, Window, WindUI, nil, ElementsModule, UIScale)
+    Tab.ElementsModule.Load(Tab, Tab.UIElements.ContainerFrame, Tab.ElementsModule.Elements, Window, WindUI, nil, Tab.ElementsModule, UIScale)
     
     
-
+    
+    function Tab:LockAll()
+        --print("LockAll called, number of elements: " .. #self.Elements)
+        for _, element in next, Window.AllElements do
+            if element.Tab and element.Tab.Index and element.Tab.Index == Tab.Index and element.Lock then 
+                element:Lock()
+            end
+        end
+    end
+    function Tab:UnlockAll()
+        for _, element in next, Window.AllElements do
+            if element.Tab and element.Tab.Index and element.Tab.Index == Tab.Index and element.Unlock then
+                element:Unlock()
+            end
+        end
+    end
+    function Tab:GetLocked()
+        local LockedElements = {}
+        
+        for _, element in next, Window.AllElements do
+            if element.Tab and element.Tab.Index and element.Tab.Index == Tab.Index and element.Locked == true then 
+                table.insert(LockedElements, element)
+            end
+        end
+        
+        return LockedElements
+    end
+    function Tab:GetUnlocked()
+        local UnlockedElements = {}
+        
+        for _, element in next, Window.AllElements do
+            if element.Tab and element.Tab.Index and element.Tab.Index == Tab.Index and element.Locked == false then 
+                table.insert(UnlockedElements, element)
+            end
+        end
+        
+        return UnlockedElements
+    end
+    
+    function Tab:Select()
+        return Tab:SelectTab(Tab.Index)
+    end
 	
 	task.spawn(function()
         local Empty = New("Frame", {
@@ -372,8 +419,10 @@ function TabModule.New(Config, UIScale)
         --     Empty.TextLabel.Size = UDim2.new(0,Empty.TextLabel.TextBounds.X,0,Empty.TextLabel.TextBounds.Y)
         -- end)
         
-        Creator.AddSignal(Tab.UIElements.ContainerFrame.ChildAdded, function()
+        local CreationConn
+        CreationConn = Creator.AddSignal(Tab.UIElements.ContainerFrame.ChildAdded, function()
             Empty.Visible = false
+            CreationConn:Disconnect()
         end)
 	end)
 	

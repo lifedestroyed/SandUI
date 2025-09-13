@@ -5,7 +5,7 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 
-function Input.New(Placeholder, Icon, Parent, Type, Callback)
+function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange)
     Type = Type or "Input"
     local Radius = 10
     local IconInputFrame
@@ -113,11 +113,19 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback)
     --     )
     -- end)
     
-    Creator.AddSignal(TextBox.FocusLost, function()
-        if Callback then
-            Creator.SafeCallback(Callback, TextBox.Text)
-        end
-    end)
+    if OnChange then
+        Creator.AddSignal(TextBox:GetPropertyChangedSignal("Text"), function()
+            if Callback then
+                Creator.SafeCallback(Callback, TextBox.Text)
+            end
+        end)
+    else
+        Creator.AddSignal(TextBox.FocusLost, function()
+            if Callback then
+                Creator.SafeCallback(Callback, TextBox.Text)
+            end
+        end)
+    end
     
     return InputFrame
 end

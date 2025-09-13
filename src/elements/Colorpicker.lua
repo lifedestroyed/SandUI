@@ -642,6 +642,7 @@ function Element:New(Config)
     
     local CanCallback = true
     
+    if Config.Window.NewElements then Element.UICorner = 14 end
     
     Colorpicker.ColorpickerFrame = require("../components/window/Element")({
         Title = Colorpicker.Title,
@@ -649,6 +650,10 @@ function Element:New(Config)
         Parent = Config.Parent,
         TextOffset = 40,
         Hover = false,
+        Tab = Config.Tab,
+        Index = Config.Index,
+        Window = Config.Window,
+        ElementTable = Colorpicker,
     })
     
     Colorpicker.UIElements.Colorpicker = Creator.NewRoundFrame(Element.UICorner, "Squircle",{
@@ -657,17 +662,19 @@ function Element:New(Config)
         ImageColor3 = Colorpicker.Default,
         Parent = Colorpicker.ColorpickerFrame.UIElements.Main,
         Size = UDim2.new(0,30,0,30),
-        AnchorPoint = Vector2.new(1,0.5),
-        Position = UDim2.new(1,0,0.5,0),
+        AnchorPoint = Vector2.new(1,0),
+        Position = UDim2.new(1,0,0,0),
         ZIndex = 2
     }, nil, true)
     
     
     function Colorpicker:Lock()
+        Colorpicker.Locked = true
         CanCallback = false
         return Colorpicker.ColorpickerFrame:Lock()
     end
     function Colorpicker:Unlock()
+        Colorpicker.Locked = false
         CanCallback = true
         return Colorpicker.ColorpickerFrame:Unlock()
     end

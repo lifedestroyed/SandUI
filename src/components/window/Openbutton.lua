@@ -213,9 +213,9 @@ function OpenButton.New(Window)
         end
         
         local IsPC = UserInputService.KeyboardEnabled or not UserInputService.TouchEnabled
-        OpenButton.Visible = not OpenButtonModule.OnlyMobile or not IsPC
+        OpenButtonMain:Visible((not OpenButtonModule.OnlyMobile) or (not IsPC))
         
-        if not OpenButton.Visible then return end
+        --if not OpenButton.Visible then return end
         
         if Title then
             if OpenButtonModule.Title then

@@ -11,10 +11,12 @@ function Element:New(Config)
         Icon = Config.Icon,
         TextXAlignment = Config.TextXAlignment or "Left",
         TextSize = Config.TextSize or 19,
+        TextTransparency = Config.TextTransparency or 0.05,
         UIElements = {},
         
         HeaderSize = 42,
-        IconSize = 24,
+        IconSize = 20,
+        Padding = 10,
         
         Elements = {},
         
@@ -68,6 +70,7 @@ function Element:New(Config)
         TextXAlignment = "Left",
         AutomaticSize = "Y",
         TextSize = Section.TextSize,
+        TextTransparency = Section.TextTransparency,
         ThemeTag = {
             TextColor3 = "Text",
         },
@@ -80,23 +83,25 @@ function Element:New(Config)
             Icon and (-Section.IconSize-8)*2
                 or (-Section.IconSize-8),
                 
-            1,
+            0,
             0
         ),
         TextWrapped = true,
     })
 
     local Main = New("Frame", {
-        Size = UDim2.new(1,0,0,Section.HeaderSize),
+        Size = UDim2.new(1,0,0,0),
         BackgroundTransparency = 1,
-        --AutomaticSize = "Y",
         Parent = Config.Parent,
         ClipsDescendants = true,
+        AutomaticSize = "Y",
     }, {
         New("TextButton", {
-            Size = UDim2.new(1,0,0,Section.HeaderSize),
+            Size = UDim2.new(1,0,0,0),
             BackgroundTransparency = 1,
+            AutomaticSize = "Y",
             Text = "",
+            Name = "Top",
         }, {
             Icon,
             TitleFrame,
@@ -106,10 +111,6 @@ function Element:New(Config)
                 VerticalAlignment = "Center",
                 HorizontalAlignment = not Icon and Section.TextXAlignment or "Left",
             }),
-            New("UIPadding", {
-                PaddingTop = UDim.new(0,4),
-                PaddingBottom = UDim.new(0,2),
-            }),
             ChevronIconFrame,
         }),
         New("Frame", {
@@ -117,12 +118,12 @@ function Element:New(Config)
             Size = UDim2.new(1,0,0,0),
             AutomaticSize = "Y",
             Name = "Content",
-            Visible = true,
+            Visible = false,
             Position = UDim2.new(0,0,0,Section.HeaderSize)
         }, {
             New("UIListLayout", {
                 FillDirection = "Vertical",
-                Padding = UDim.new(0,6),
+                Padding = UDim.new(0,Config.Tab.Gap),
                 VerticalAlignment = "Bottom",
             }),
         })
@@ -183,7 +184,7 @@ function Element:New(Config)
         end
     end
     
-    Creator.AddSignal(Main.TextButton.MouseButton1Click, function()
+    Creator.AddSignal(Main.Top.MouseButton1Click, function()
         if Section.Expandable then
             if Section.Opened then
                 Section:Close()
@@ -199,7 +200,25 @@ function Element:New(Config)
             Section:Open()
         end)
     end
-
+    
+    task.spawn(function()
+        task.wait()
+        if Section.Expandable then
+            -- New("UIPadding", {
+            --     PaddingTop = UDim.new(0,4),
+            --     PaddingLeft = UDim.new(0,Section.Padding),
+            --     PaddingRight = UDim.new(0,Section.Padding),
+            --     PaddingBottom = UDim.new(0,2),
+                
+            --     Parent = Main.Top,
+            -- })
+            Main.Size = UDim2.new(1,0,0,Section.HeaderSize)
+            Main.AutomaticSize = "None"
+            Main.Top.Size = UDim2.new(1,0,0,Section.HeaderSize)
+            Main.Top.AutomaticSize = "None"
+            Main.Content.Visible = true
+        end
+    end)
     
     return Section.__type, Section
 end

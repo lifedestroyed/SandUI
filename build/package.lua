@@ -1,8 +1,9 @@
--- Generated from package.json | build/build.sh 
+-- Generated from package.json | build/build.sh
 
-return [[{
+return [[
+{
     "name": "windui",
-    "version": "1.6.45",
+    "version": "1.6.5",
     "main": "./dist/main.lua",
     "repository": "https://github.com/Footagesus/WindUI",
     "discord": "https://discord.gg/Q6HkNG4vwP",
@@ -10,11 +11,11 @@ return [[{
     "description": "Roblox UI Library for scripts",
     "license": "MIT",
     "scripts": {
-        "dev": "sh build/build.sh dev",
-        "build": "sh build/build.sh build",
+        "dev": "sh build/build.sh dev $INPUT_FILE",
+        "build": "sh build/build.sh build $INPUT_FILE",
         "live": "python -m http.server 8642",
-        "watch": "chokidar . -i 'node_modules' -i 'dist' -i 'build' -c 'npm run dev'",
-        "live-build": "concurrently \"npm run live\" \"npm run watch\""
+        "watch": "chokidar . -i 'node_modules' -i 'dist' -i 'build' -c 'npm run dev --'",
+        "live-build": "concurrently \"npm run live\" \"npm run watch --\""
     },
     "keywords": [
         "ui-library",

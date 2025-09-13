@@ -17,7 +17,7 @@ function Luarmor.New(scriptId, discord)
     
     function ValidateKey(key)
         local status = API.check_key(key);
-        print(status)
+        --print(status)
         
         if (status.code == "KEY_VALID") then
             return true, "Whitelisted!"

@@ -7,6 +7,8 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 local CreateLabel = require("../components/ui/Label").New
+local CreateInput = require("../components/ui/Input").New
+
 
 local Element = {
     UICorner = 10,
@@ -14,6 +16,7 @@ local Element = {
     MenuCorner = 15,
     MenuPadding = 5,
     TabPadding = 10,
+    SearchBarHeight = 39,
 }
 
 function Element:New(Config)
@@ -26,6 +29,7 @@ function Element:New(Config)
         MenuWidth = Config.MenuWidth or 170,
         Value = Config.Value,
         AllowNone = Config.AllowNone,
+        SearchBarEnabled = Config.SearchBarEnabled or false,
         Multi = Config.Multi,
         Callback = Config.Callback or function() end,
         
@@ -49,6 +53,10 @@ function Element:New(Config)
         Parent = Config.Parent,
         TextOffset = Dropdown.Width,
         Hover = false,
+        Tab = Config.Tab,
+        Index = Config.Index,
+        Window = Config.Window,
+        ElementTable = Dropdown,
     })
     
     
@@ -99,11 +107,16 @@ function Element:New(Config)
             PaddingRight = UDim.new(0, Element.MenuPadding),
             PaddingBottom = UDim.new(0, Element.MenuPadding),
         }),
+        New("UIListLayout", {
+            FillDirection = "Vertical",
+            Padding = UDim.new(0,Element.MenuPadding)
+        }),
 		New("Frame", {
 		    BackgroundTransparency = 1,
-		    Size = UDim2.new(1,0,1,0),
+		    Size = UDim2.new(1,0,1,Dropdown.SearchBarEnabled and -Element.MenuPadding-Element.SearchBarHeight ),
 		    --Name = "CanvasGroup",
-		    ClipsDescendants = true
+		    ClipsDescendants = true,
+		    LayoutOrder = 999,
 		}, {
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0,Element.MenuCorner - Element.MenuPadding),
@@ -145,10 +158,12 @@ function Element:New(Config)
     })
     
     function Dropdown:Lock()
+        Dropdown.Locked = true
         CanCallback = false
         return Dropdown.DropdownFrame:Lock()
     end
     function Dropdown:Unlock()
+        Dropdown.Locked = false
         CanCallback = true
         return Dropdown.DropdownFrame:Unlock()
     end
@@ -165,7 +180,7 @@ function Element:New(Config)
 		if #Dropdown.Values > 10 then
 			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, 392)
 		else
-			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y + (Element.MenuPadding*2))
+			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, Dropdown.UIElements.Menu.UIListLayout.AbsoluteContentSize.Y)
 		end
 	end
     
@@ -217,6 +232,22 @@ function Element:New(Config)
         end
         
         Dropdown.Tabs = {}
+        
+        if Dropdown.SearchBarEnabled then
+            local SearchLabel = CreateInput("Search...", "search", Dropdown.UIElements.Menu, nil, function(val)
+                for _, tab in next, Dropdown.Tabs do
+                    if string.find(string.lower(tab.Name), string.lower(val), 1, true) then
+                        tab.UIElements.TabItem.Visible = true
+                    else
+                        tab.UIElements.TabItem.Visible = false
+                    end
+                    RecalculateListSize()
+                end
+            end, true)
+            SearchLabel.Size = UDim2.new(1,0,0,Element.SearchBarHeight)
+            SearchLabel.Position = UDim2.new(0,0,0,0)
+            SearchLabel.Name = "SearchBar"
+        end
         
         for Index,Tab in next, Values do
             --task.wait(0.012)
@@ -370,7 +401,7 @@ function Element:New(Config)
                 Callback()
             end)
             
-            RecalculateCanvasSize()
+            --RecalculateCanvasSize()
             RecalculateListSize()
         end
             
@@ -403,6 +434,10 @@ function Element:New(Config)
         end
         Dropdown:Refresh(Dropdown.Values)
     end
+    
+    -- Creator.AddSignal(Dropdown.UIElements.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+    --     RecalculateListSize()
+    -- end)
     
     --Dropdown:Display()
     RecalculateListSize()

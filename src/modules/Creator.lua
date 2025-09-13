@@ -101,9 +101,10 @@ function Creator.Init(WindUITable)
     WindUI = WindUITable
 end
 
-
 function Creator.AddSignal(Signal, Function)
-	table.insert(Creator.Signals, Signal:Connect(Function))
+    local conn = Signal:Connect(Function)
+    table.insert(Creator.Signals, conn)
+    return conn
 end
 
 function Creator.DisconnectAll()
@@ -302,26 +303,31 @@ function Creator.Tween(Object, Time, Properties, ...)
     return TweenService:Create(Object, TweenInfo.new(Time, ...), Properties)
 end
 
-function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton)
-    -- local ThemeTags = {}
-    -- if Properties.ThemeTag then
-    --     for k, v in next, Properties.ThemeTag do
-    --         ThemeTags[k] = v
-    --     end
-    -- end
-    local Image = Creator.New(isButton and "ImageButton" or "ImageLabel", {
-        Image = Type == "Squircle" and "rbxassetid://80999662900595"
-             or Type == "SquircleOutline" and "rbxassetid://117788349049947" 
-             or Type == "SquircleOutline2" and "rbxassetid://117817408534198" 
-             or Type == "Shadow-sm" and "rbxassetid://84825982946844"
-             or Type == "Squircle-TL-TR" and "rbxassetid://73569156276236",
-        ScaleType = "Slice",
-        SliceCenter = Type ~= "Shadow-sm" and Rect.new(
+
+function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton, ReturnTable)
+    local function getImageForType(shapeType)
+        return shapeType == "Squircle" and "rbxassetid://80999662900595"
+             or shapeType == "SquircleOutline" and "rbxassetid://117788349049947" 
+             or shapeType == "SquircleOutline2" and "rbxassetid://117817408534198" 
+             or shapeType == "Shadow-sm" and "rbxassetid://84825982946844"
+             or shapeType == "Squircle-TL-TR" and "rbxassetid://73569156276236"
+             or shapeType == "Squircle-BL-BR" and "rbxassetid://93853842912264"
+             or shapeType == "Square" and "rbxassetid://82909646051652"
+    end
+    
+    local function getSliceCenterForType(shapeType)
+        return shapeType ~= "Shadow-sm" and Rect.new(
             512/2,
             512/2,
             512/2,
             512/2
-            ) or Rect.new(512,512,512,512),
+        ) or Rect.new(512,512,512,512)
+    end
+    
+    local Image = Creator.New(isButton and "ImageButton" or "ImageLabel", {
+        Image = getImageForType(Type),
+        ScaleType = "Slice",
+        SliceCenter = getSliceCenterForType(Type),
         SliceScale = 1,
         BackgroundTransparency = 1,
         ThemeTag = Properties.ThemeTag and Properties.ThemeTag
@@ -338,9 +344,42 @@ function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton)
         Image.SliceScale = math.max(sliceScale, 0.0001)
     end
     
+    local Wrapper = {}
+    
+    function Wrapper:SetRadius(newRadius)
+        UpdateSliceScale(newRadius)
+    end
+    
+    function Wrapper:SetType(newType)
+        Type = newType
+        Image.Image = getImageForType(newType)
+        Image.SliceCenter = getSliceCenterForType(newType)
+        UpdateSliceScale(Radius)
+    end
+    
+    function Wrapper:UpdateShape(newRadius, newType)
+        if newType then
+            Type = newType
+            Image.Image = getImageForType(newType)
+            Image.SliceCenter = getSliceCenterForType(newType)
+        end
+        if newRadius then
+            Radius = newRadius
+        end
+        UpdateSliceScale(Radius)
+    end
+    
+    function Wrapper:GetRadius()
+        return Radius
+    end
+    
+    function Wrapper:GetType()
+        return Type
+    end
+    
     UpdateSliceScale(Radius)
 
-    return Image
+    return Image, ReturnTable and Wrapper or nil
 end
 
 local New = Creator.New

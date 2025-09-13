@@ -31,40 +31,56 @@ return function(Config)
         Background = Config.Background,
         BackgroundImageTransparency = Config.BackgroundImageTransparency or 0,
         User = Config.User or {},
-        Size = Config.Size and UDim2.new(
-                    0, math.clamp(Config.Size.X.Offset, 560, 700),
-                    0, math.clamp(Config.Size.Y.Offset, 350, 520)) or UDim2.new(0,580,0,460),
-        ToggleKey = Config.ToggleKey or Enum.KeyCode.G,
+        
+        Size = Config.Size,
+        
+        MinSize = Config.MinSize or Vector2.new(560, 350),
+        MaxSize = Config.MaxSize or Vector2.new(850, 560),
+    
+        ToggleKey = Config.ToggleKey,
         Transparent = Config.Transparent or false,
         HideSearchBar = Config.HideSearchBar,
         ScrollBarEnabled = Config.ScrollBarEnabled or false,
-		SideBarWidth = Config.SideBarWidth or 200,
-		Acrylic = Config.Acrylic or false,
+        SideBarWidth = Config.SideBarWidth or 200,
+        Acrylic = Config.Acrylic or false,
+        NewElements = Config.NewElements or false,
+        HidePanelBackground = Config.HidePanelBackground or false,
         
-        Position = UDim2.new(0.5, 0,0.5, 0),
-		IconSize = 22,
-		UICorner = 16,
-		UIPadding = 14,
-		UIElements = {},
-		CanDropdown = true,
-		Closed = false,
-		Parent = Config.Parent,
-		Destroyed = false,
-		IsFullscreen = false,
-		CanResize = false,
-		IsOpenButtonEnabled = true,
-
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        IconSize = 22,
+        UICorner = 16,
+        UIPadding = 14,
+        UIElements = {},
+        CanDropdown = true,
+        Closed = false,
+        Parent = Config.Parent,
+        Destroyed = false,
+        IsFullscreen = false,
+        CanResize = false,
+        IsOpenButtonEnabled = true,
+    
         ConfigManager = nil,
-		AcrylicPaint = nil,
-		CurrentTab = nil,
-		TabModule = nil,
-		
-		OnCloseCallback   = nil,
-		OnDestroyCallback = nil,
+        AcrylicPaint = nil,
+        CurrentTab = nil,
+        TabModule = nil,
+        
+        OnOpenCallback    = nil,
+        OnCloseCallback   = nil,
+        OnDestroyCallback = nil,
+        
+        Gap = 5,
         
         TopBarButtons = {},
-        
-    } -- wtf 
+        AllElements = {},
+    }
+    
+    local WindowSize = Window.Size or UDim2.new(0, 580, 0, 460)
+    Window.Size = UDim2.new(
+        WindowSize.X.Scale,
+        math.clamp(WindowSize.X.Offset, Window.MinSize.X, Window.MaxSize.X),
+        WindowSize.Y.Scale,
+        math.clamp(WindowSize.Y.Offset, Window.MinSize.Y, Window.MaxSize.Y)
+    )
     
     if Window.HideSearchBar ~= false then
         Window.HideSearchBar = true
@@ -177,7 +193,7 @@ return function(Config)
             }),
             New("UIListLayout", {
                 SortOrder = "LayoutOrder",
-                Padding = UDim.new(0,0)
+                Padding = UDim.new(0,Window.Gap)
             })
         }),
         New("UIPadding", {
@@ -227,6 +243,7 @@ return function(Config)
             ZIndex = 3,
             ImageTransparency = .95,
             Name = "Background",
+            Visible = not Window.HidePanelBackground
         }),
         New("UIPadding", {
             PaddingTop = UDim.new(0,Window.UIPadding/2),
@@ -268,12 +285,16 @@ return function(Config)
     
     
     local UserIcon
-    if Window.User.Enabled then
-        local ImageId, _ = game.Players:GetUserThumbnailAsync(
-            Window.User.Anonymous and 1 or game.Players.LocalPlayer.UserId, 
-            Enum.ThumbnailType.HeadShot, 
-            Enum.ThumbnailSize.Size420x420
-        )
+    if Window.User then
+        local function getUserThumb()
+            local ImageId, _ = game.Players:GetUserThumbnailAsync(
+                Window.User.Anonymous and 1 or game.Players.LocalPlayer.UserId, 
+                Enum.ThumbnailType.HeadShot, 
+                Enum.ThumbnailSize.Size420x420
+            )
+            return ImageId
+        end
+        
         
         UserIcon = New("TextButton", {
             Size = UDim2.new(0,
@@ -284,6 +305,7 @@ return function(Config)
             Position = UDim2.new(0,Window.UIPadding/2,1,-(Window.UIPadding/2)),
             AnchorPoint = Vector2.new(0,1),
             BackgroundTransparency = 1,
+            Visible = false,
         }, {
             Creator.NewRoundFrame(Window.UICorner-(Window.UIPadding/2), "SquircleOutline", {
                 Size = UDim2.new(1,0,1,0),
@@ -316,7 +338,7 @@ return function(Config)
                 Name = "UserIcon",
             }, {
                 New("ImageLabel", {
-                    Image = ImageId,
+                    Image = getUserThumb(),
                     BackgroundTransparency = 1,
                     Size = UDim2.new(0,42,0,42),
                     ThemeTag = {
@@ -344,9 +366,10 @@ return function(Config)
                         Size = UDim2.new(1,-(42/2)-6,0,0),
                         TextTruncate = "AtEnd",
                         TextXAlignment = "Left",
+                        Name = "DisplayName"
                     }),
                     New("TextLabel", {
-                        Text = Window.User.Anonymous and "@anonymous" or "@" .. game.Players.LocalPlayer.Name,
+                        Text = Window.User.Anonymous and "anonymous" or game.Players.LocalPlayer.Name,
                         TextSize = 15,
                         TextTransparency = .6,
                         ThemeTag = {
@@ -358,6 +381,7 @@ return function(Config)
                         Size = UDim2.new(1,-(42/2)-6,0,0),
                         TextTruncate = "AtEnd",
                         TextXAlignment = "Left",
+                        Name = "UserName"
                     }),
                     New("UIListLayout", {
                         Padding = UDim.new(0,4),
@@ -375,6 +399,29 @@ return function(Config)
                 })
             })
         })
+        
+        
+        function Window.User:Enable()
+            Window.User.Enabled = true
+            Tween(Window.UIElements.SideBarContainer, .25, { Size = UDim2.new(0,Window.SideBarWidth,1,-52 -42 -(Window.UIPadding*2)) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+            UserIcon.Visible = true
+        end
+        function Window.User:Disable()
+            Window.User.Enabled = false
+            Tween(Window.UIElements.SideBarContainer, .25, { Size = UDim2.new(0,Window.SideBarWidth,1,-52 ) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+            UserIcon.Visible = false
+        end
+        function Window.User:SetAnonymous(v)
+            if v ~= false then v = true end
+            Window.User.Anonymous = v
+            UserIcon.UserIcon.ImageLabel.Image = getUserThumb()
+            UserIcon.UserIcon.Frame.DisplayName.Text = v and "Anonymous" or game.Players.LocalPlayer.DisplayName
+            UserIcon.UserIcon.Frame.UserName.Text = v and "anonymous" or game.Players.LocalPlayer.Name
+        end
+        
+        if Window.User.Enabled then
+            
+        end
         
         if Window.User.Callback then
             Creator.AddSignal(UserIcon.MouseButton1Click, function()
@@ -909,6 +956,9 @@ return function(Config)
         -- end
     end, 997)
     
+    function Window:OnOpen(func)
+        Window.OnOpenCallback = func
+    end
     function Window:OnClose(func)
         Window.OnCloseCallback = func
     end
@@ -920,8 +970,30 @@ return function(Config)
 --		Window.AcrylicPaint.AddParent(Window.UIElements.Main)
 --	end
 
+    function Window:SetIconSize(Size)
+        local NewSize
+        if typeof(Size) == "number" then
+            NewSize = UDim2.new(0, Size, 0, Size)
+            Window.IconSize = Size
+        elseif typeof(Size) == "UDim2" then
+            NewSize = Size
+            Window.IconSize = Size.X.Offset
+        end
+    
+        if WindowIcon then
+            WindowIcon.Size = NewSize
+        end
+    end
+
     function Window:Open()
         task.spawn(function()
+            if Window.OnOpenCallback then
+                task.spawn(function()
+                    Creator.SafeCallback(Window.OnOpenCallback)
+                end)
+            end
+            
+            
             task.wait(.06)
             Window.Closed = false
             
@@ -1053,6 +1125,14 @@ return function(Config)
     function Window:Destroy()
         Window:Close():Destroy()
     end
+    function Window:Toggle()
+        if Window.Closed then
+            Window:Open()
+        else
+            Window:Close()
+        end
+    end
+    
     
     function Window:ToggleTransparency(Value)
         -- Config.Transparent = Value
@@ -1064,7 +1144,35 @@ return function(Config)
         Window.UIElements.MainBar.Background.ImageTransparency = Value and 0.97 or 0.95
         
     end
-
+    
+    function Window:LockAll()
+        for _, element in next, Window.AllElements do
+            if element.Lock then element:Lock() end
+        end
+    end
+    function Window:UnlockAll()
+        for _, element in next, Window.AllElements do
+            if element.Unlock then element:Unlock() end
+        end
+    end
+    function Window:GetLocked()
+        local LockedElements = {}
+        
+        for _, element in next, Window.AllElements do
+            if element.Locked then table.insert(LockedElements, element) end
+        end
+        
+        return LockedElements
+    end
+    function Window:GetUnlocked()
+        local UnlockedElements = {}
+        
+        for _, element in next, Window.AllElements do
+            if element.Locked == false then table.insert(UnlockedElements, element) end
+        end
+        
+        return UnlockedElements
+    end
 
     function Window:SetUIScale(v)
         Config.WindUI.UIScale = v
@@ -1092,11 +1200,9 @@ return function(Config)
     Creator.AddSignal(UserInputService.InputBegan, function(input, isProcessed)
         if isProcessed then return end
         
-        if input.KeyCode == Window.ToggleKey then
-            if Window.Closed then
-                Window:Open()
-            else
-                Window:Close()
+        if Window.ToggleKey then
+            if input.KeyCode == Window.ToggleKey then
+                Window:Toggle()
             end
         end
     end)
@@ -1128,7 +1234,7 @@ return function(Config)
     end
     
     function Window:Section(SectionConfig)
-        return SectionModule.New(SectionConfig, Window.UIElements.SideBar.Frame, Window.Folder, Config.WindUI.UIScale)
+        return SectionModule.New(SectionConfig, Window.UIElements.SideBar.Frame, Window.Folder, Config.WindUI.UIScale, Window)
     end
     
     function Window:IsResizable(v)
@@ -1383,16 +1489,16 @@ return function(Config)
             FullScreenIcon.Active = true
             initialSize = Window.UIElements.Main.Size
             initialInputPosition = input.Position
-            Tween(FullScreenIcon, 0.12, {ImageTransparency = .65}):Play()
-            Tween(FullScreenIcon.ImageLabel, 0.12, {ImageTransparency = 0}):Play()
+            --Tween(FullScreenIcon, 0.12, {ImageTransparency = .65}):Play()
+            --Tween(FullScreenIcon.ImageLabel, 0.12, {ImageTransparency = 0}):Play()
             Tween(ResizeHandle.ImageLabel, 0.1, {ImageTransparency = .35}):Play()
         
             Creator.AddSignal(input.Changed, function()
                 if input.UserInputState == Enum.UserInputState.End then
                     isResizing = false
                     FullScreenIcon.Active = false
-                    Tween(FullScreenIcon, 0.2, {ImageTransparency = 1}):Play()
-                    Tween(FullScreenIcon.ImageLabel, 0.17, {ImageTransparency = 1}):Play()
+                    --Tween(FullScreenIcon, 0.2, {ImageTransparency = 1}):Play()
+                    --Tween(FullScreenIcon.ImageLabel, 0.17, {ImageTransparency = 1}):Play()
                     Tween(ResizeHandle.ImageLabel, 0.17, {ImageTransparency = .8}):Play()
                 end
             end)
@@ -1413,14 +1519,22 @@ return function(Config)
                 local delta = input.Position - initialInputPosition
                 local newSize = UDim2.new(0, initialSize.X.Offset + delta.X*2, 0, initialSize.Y.Offset + delta.Y*2)
                 
+                newSize = UDim2.new(
+                    newSize.X.Scale,
+                    math.clamp(newSize.X.Offset, Window.MinSize.X, Window.MaxSize.X),
+                    newSize.Y.Scale,
+                    math.clamp(newSize.Y.Offset, Window.MinSize.Y, Window.MaxSize.Y)
+                )
+                    
                 Tween(Window.UIElements.Main, 0, {
-                    Size = UDim2.new(
-                    0, math.clamp(newSize.X.Offset, 560, 700),
-                    0, math.clamp(newSize.Y.Offset, 350, 520)
-                )}):Play()
+                    Size = newSize
+                }):Play()
+                
+                Window.Size = newSize
             end
         end
     end)
+    
     
     
     -- / Search Bar /

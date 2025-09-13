@@ -160,6 +160,8 @@ function ConfigManager:CreateConfig(configFilename)
         
         local jsonData = HttpService:JSONEncode(saveData)
         writefile(ConfigModule.Path, jsonData)
+        
+        return saveData
     end
     
     function ConfigModule:Load()
