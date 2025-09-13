@@ -305,7 +305,7 @@ return function(Config)
             Position = UDim2.new(0,Window.UIPadding/2,1,-(Window.UIPadding/2)),
             AnchorPoint = Vector2.new(0,1),
             BackgroundTransparency = 1,
-            Visible = false,
+            Visible = Window.User.Enabled or false,
         }, {
             Creator.NewRoundFrame(Window.UICorner-(Window.UIPadding/2), "SquircleOutline", {
                 Size = UDim2.new(1,0,1,0),

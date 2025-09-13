@@ -1076,7 +1076,8 @@ service=ae,
 identifier=_(ar())
 },
 Headers={
-["Content-Type"]="application/json"
+["Content-Type"]="application/json",
+["User-Agent"]="Roblox/Exploit"
 }
 };
 
@@ -8788,7 +8789,7 @@ Size=UDim2.new(0,
 Position=UDim2.new(0,ao.UIPadding/2,1,-(ao.UIPadding/2)),
 AnchorPoint=Vector2.new(0,1),
 BackgroundTransparency=1,
-Visible=false,
+Visible=ao.User.Enabled or false,
 },{
 af.NewRoundFrame(ao.UICorner-(ao.UIPadding/2),"SquircleOutline",{
 Size=UDim2.new(1,0,1,0),
