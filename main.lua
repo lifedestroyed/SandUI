@@ -305,9 +305,14 @@ local intensitySlider = ElementsSection:Slider({
 })
 
 local values = {}
+local values2 = {}
 
-for i = 1, 40 do
+for i = 1, 80 do
     table.insert(values, "Test " .. i)
+end
+
+for i = 1, 2 do
+    table.insert(values2, "Test " .. i)
 end
 
 ElementsSection:Space()
@@ -316,6 +321,21 @@ ElementsSection:Space()
 local testDropdown = ElementsSection:Dropdown({
     Title = "Dropdown test",
     Values = values,
+    SearchBarEnabled = true,
+    Value = "Test 1",
+    Callback = function(option)
+        -- WindUI:Notify({
+        --     Title = "Dropdown",
+        --     Content = "Selected: "..option,
+        --     Duration = 2
+        -- })
+    end
+})
+
+local testDropdown2 = ElementsSection:Dropdown({
+    Title = "Dropdown test2",
+    Values = values,
+    SearchBarEnabled = true,
     Value = "Test 1",
     Callback = function(option)
         -- WindUI:Notify({
@@ -327,6 +347,7 @@ local testDropdown = ElementsSection:Dropdown({
 })
 
 testDropdown:Refresh(values)
+testDropdown2:Refresh(values2)
 
 ElementsSection:Divider()
 

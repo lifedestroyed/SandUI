@@ -42,9 +42,18 @@ function Element:New(Config)
         ElementTable = Input,
     })
     
-    local InputComponent = CreateInput(Input.Placeholder, Input.InputIcon, not Input.Type == "Input" and Input.InputFrame.UIElements.Container or Input.InputFrame.UIElements.Main, Input.Type, function(v)
-        Input:Set(v)
-    end)
+    local InputComponent = CreateInput(
+        Input.Placeholder, 
+        Input.InputIcon, 
+        Input.Type == "Textarea" and Input.InputFrame.UIElements.Container or Input.InputFrame.UIElements.Main, 
+        Input.Type, 
+        function(v)
+            Input:Set(v)
+        end,
+        nil,
+        Config.Window.NewElements and 12 or 10
+    )
+    
     if Input.Type == "Input" then
         InputComponent.Size = UDim2.new(0,Input.Width,0,36)
         InputComponent.Position = UDim2.new(1,0,0.5,0)

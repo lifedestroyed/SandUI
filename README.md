@@ -26,3 +26,5 @@
 ### Links
 - [Discord Server](https://discord.gg/Q6HkNG4vwP)
 - [Documentation](https://Footagesus.github.io/WindUI-Docs/)
+- [Small Example](/Example.lua)
+- [New Example](/main_example.lua) (not completed)

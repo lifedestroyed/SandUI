@@ -174,13 +174,14 @@ function Element:New(Config)
     
     local function RecalculateCanvasSize()
 		Dropdown.UIElements.Menu.Frame.ScrollingFrame.CanvasSize = UDim2.fromOffset(0, Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y)
+		--Dropdown.UIElements.Menu.Frame.ScrollingFrame.Size = UDim2.fromOffset(0, Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y)
     end
 
     local function RecalculateListSize()
-		if #Dropdown.Values > 10 then
+		if Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y > 300 then
 			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, 392)
 		else
-			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, Dropdown.UIElements.Menu.UIListLayout.AbsoluteContentSize.Y)
+			Dropdown.UIElements.MenuCanvas.Size = UDim2.fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X, Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y + (Dropdown.SearchBarEnabled and (Element.SearchBarHeight + (Element.MenuPadding*3)) or 0))
 		end
 	end
     
@@ -204,6 +205,7 @@ function Element:New(Config)
         )
     end
     
+    local SearchLabel
     
     
     function Dropdown:Display()
@@ -234,19 +236,21 @@ function Element:New(Config)
         Dropdown.Tabs = {}
         
         if Dropdown.SearchBarEnabled then
-            local SearchLabel = CreateInput("Search...", "search", Dropdown.UIElements.Menu, nil, function(val)
-                for _, tab in next, Dropdown.Tabs do
-                    if string.find(string.lower(tab.Name), string.lower(val), 1, true) then
-                        tab.UIElements.TabItem.Visible = true
-                    else
-                        tab.UIElements.TabItem.Visible = false
+            if not SearchLabel then
+                SearchLabel = CreateInput("Search...", "search", Dropdown.UIElements.Menu, nil, function(val)
+                    for _, tab in next, Dropdown.Tabs do
+                        if string.find(string.lower(tab.Name), string.lower(val), 1, true) then
+                            tab.UIElements.TabItem.Visible = true
+                        else
+                            tab.UIElements.TabItem.Visible = false
+                        end
+                        RecalculateListSize()
                     end
-                    RecalculateListSize()
-                end
-            end, true)
-            SearchLabel.Size = UDim2.new(1,0,0,Element.SearchBarHeight)
-            SearchLabel.Position = UDim2.new(0,0,0,0)
-            SearchLabel.Name = "SearchBar"
+                end, true)
+                SearchLabel.Size = UDim2.new(1,0,0,Element.SearchBarHeight)
+                SearchLabel.Position = UDim2.new(0,0,0,0)
+                SearchLabel.Name = "SearchBar"
+            end
         end
         
         for Index,Tab in next, Values do
@@ -401,7 +405,7 @@ function Element:New(Config)
                 Callback()
             end)
             
-            --RecalculateCanvasSize()
+            RecalculateCanvasSize()
             RecalculateListSize()
         end
             
@@ -415,6 +419,7 @@ function Element:New(Config)
         end
         
         Dropdown.UIElements.MenuCanvas.Size = UDim2.new(0, maxWidth + 6 + 6 + 5 + 5 + 18 + 6 + 6, Dropdown.UIElements.MenuCanvas.Size.Y.Scale, Dropdown.UIElements.MenuCanvas.Size.Y.Offset)
+        --RecalculateListSize()
           
     end
     

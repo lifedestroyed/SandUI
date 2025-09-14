@@ -199,6 +199,13 @@ function OpenButton.New(Window)
         if OpenButtonModule.Enabled == false then
             Window.IsOpenButtonEnabled = false
         end
+        
+        if OpenButtonModule.OnlyMobile ~= false then
+            OpenButtonModule.OnlyMobile = true
+        else
+            Window.IsPC = false
+        end
+        
         if OpenButtonModule.Draggable == false and Drag and Divider then
             Drag.Visible = OpenButtonModule.Draggable
             Divider.Visible = OpenButtonModule.Draggable
@@ -207,13 +214,12 @@ function OpenButton.New(Window)
                 DragModule:Set(OpenButtonModule.Draggable)
             end
         end
-        if OpenButtonModule.Position and OpenButtonContainer then
-            OpenButtonContainer.Position = OpenButtonModule.Position
-            --OpenButtonContainer.AnchorPoint = Vector2.new(0,0)
+        
+        if OpenButtonModule.Position and Container then
+            Container.Position = OpenButtonModule.Position
         end
         
-        local IsPC = UserInputService.KeyboardEnabled or not UserInputService.TouchEnabled
-        OpenButtonMain:Visible((not OpenButtonModule.OnlyMobile) or (not IsPC))
+        --OpenButtonMain:Visible((not OpenButtonModule.OnlyMobile) or (not Window.IsPC))
         
         --if not OpenButton.Visible then return end
         

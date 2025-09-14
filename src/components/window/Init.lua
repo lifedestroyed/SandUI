@@ -266,14 +266,13 @@ return function(Config)
         Name = "Blur",
     })
 
-    local IsPC
 
     if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-        IsPC = false
+        Window.IsPC = false
     elseif UserInputService.KeyboardEnabled then
-        IsPC = true
+        Window.IsPC = true
     else
-        IsPC = nil
+        Window.IsPC = nil
     end
     
     
@@ -831,7 +830,7 @@ return function(Config)
     --Creator.Blur(Window.UIElements.Main.Background)
     -- local OpenButtonDragModule
     
-    -- if not IsPC then
+    -- if not Window.IsPC then
     --     OpenButtonDragModule = Creator.Drag(OpenButtonContainer)
     -- end
     
@@ -936,13 +935,13 @@ return function(Config)
         Window:Close()
         task.spawn(function()
             task.wait(.3)
-            if not IsPC and Window.IsOpenButtonEnabled then
+            if not Window.IsPC and Window.IsOpenButtonEnabled then
                 -- OpenButtonContainer.Visible = true
                 OpenButtonMain:Visible(true)
             end
         end)
         
-        -- local NotifiedText = IsPC and "Press " .. Window.ToggleKey.Name .. " to open the Window" or "Click the Button to open the Window"
+        -- local NotifiedText = Window.IsPC and "Press " .. Window.ToggleKey.Name .. " to open the Window" or "Click the Button to open the Window"
         
         -- if not Window.IsOpenButtonEnabled then
         --     Notified = true
@@ -1191,7 +1190,7 @@ return function(Config)
         end
     end
 
-    if not IsPC and Window.IsOpenButtonEnabled then
+    if not Window.IsPC and Window.IsOpenButtonEnabled then
         Creator.AddSignal(OpenButtonMain.Button.TextButton.MouseButton1Click, function()
             -- OpenButtonContainer.Visible = false
             OpenButtonMain:Visible(false)
