@@ -11,6 +11,7 @@ function Element:New(Config)
         Icon = Config.Icon,
         TextXAlignment = Config.TextXAlignment or "Left",
         TextSize = Config.TextSize or 19,
+        FontWeight = Config.FontWeight or Enum.FontWeight.SemiBold,
         TextTransparency = Config.TextTransparency or 0.05,
         UIElements = {},
         
@@ -74,7 +75,7 @@ function Element:New(Config)
         ThemeTag = {
             TextColor3 = "Text",
         },
-        FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
+        FontFace = Font.new(Creator.Font, Section.FontWeight),
         --Parent = Config.Parent,
         --Size = UDim2.new(1,0,0,0),
         Text = Section.Title,
@@ -124,7 +125,7 @@ function Element:New(Config)
             New("UIListLayout", {
                 FillDirection = "Vertical",
                 Padding = UDim.new(0,Config.Tab.Gap),
-                VerticalAlignment = "Bottom",
+                VerticalAlignment = "Top",
             }),
         })
     })
@@ -142,7 +143,7 @@ function Element:New(Config)
             Section.Expandable = true
             ChevronIconFrame.Visible = true
         end
-    end)
+    end, ElementsModule, Config.UIScale, Config.Tab)
     
     
     function Section:SetTitle(Title)

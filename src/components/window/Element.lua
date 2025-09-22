@@ -128,8 +128,9 @@ return function(Config)
         Color = Config.Color,
         Scalable = Config.Scalable,
         Parent = Config.Parent,
-        UIPadding = Config.Window.NewElements and 10 or 13,
-        UICorner = Config.Window.NewElements and 23 or 12,
+        Justify = Config.Justify or "Between", -- Center or Between
+        UIPadding = Config.Window.ElementConfig.UIPadding,
+        UICorner = Config.Window.ElementConfig.UICorner,
         UIElements = {},
         
         Index = Config.Index
@@ -193,8 +194,8 @@ return function(Config)
             TextColor3 = Element.Color and TextColor or nil,
             TextTransparency = Type == "Desc" and .3 or 0,
             TextWrapped = true,
-            Size = UDim2.new(1,0,0,0),
-            AutomaticSize = "Y",
+            Size = UDim2.new(Element.Justify == "Between" and 1 or 0,0,0,0),
+            AutomaticSize = Element.Justify == "Between" and "Y" or "XY",
             FontFace = Font.new(Creator.Font, Type == "Desc" and Enum.FontWeight.Medium or Enum.FontWeight.SemiBold)
         })
     end
@@ -214,25 +215,37 @@ return function(Config)
             Padding = UDim.new(0,Element.UIPadding),
             FillDirection = "Vertical",
             VerticalAlignment = Config.Window.NewElements and "Top" or "Center",
-            HorizontalAlignment = "Left",
+            HorizontalAlignment = Element.Justify == "Between" and "Left" or "Center",
         }),
         ThumbnailFrame,
         New("Frame", {
-            Size = UDim2.new(1,-Config.TextOffset,0,0),
-            AutomaticSize = "Y",
+            Size = UDim2.new(
+                Element.Justify == "Between" and 1 or 0,
+                Element.Justify == "Between" and -Config.TextOffset or 0,
+                0,
+                0
+            ),
+            AutomaticSize = Element.Justify == "Between" and "Y" or "XY",
             BackgroundTransparency = 1,
+            Name = "TitleFrame",
         }, {
             New("UIListLayout", {
                 Padding = UDim.new(0,Element.UIPadding),
                 FillDirection = "Horizontal",
-                VerticalAlignment = Config.Window.NewElements and "Top" or "Center",
-                HorizontalAlignment = "Left",
+                VerticalAlignment = Config.Window.NewElements and ( Element.Justify == "Between" and "Top" or "Center" ) or "Center",
+                HorizontalAlignment = Element.Justify ~= "Between" and Element.Justify or "Center",
             }),
             ImageFrame,
             New("Frame", {
                 BackgroundTransparency = 1,
-                AutomaticSize = "Y",
-                Size = UDim2.new(1,-IconOffset,1,0)
+                AutomaticSize = Element.Justify == "Between" and "Y" or "XY",
+                Size = UDim2.new(
+                    Element.Justify == "Between" and 1 or 0,
+                    Element.Justify == "Between" and -IconOffset or 0,
+                    1,
+                    0
+                ),
+                Name = "TitleFrame",
             }, {
                 New("UIPadding", {
                     PaddingTop = UDim.new(0,Config.Window.NewElements and Element.UIPadding/2 or 0),
@@ -279,15 +292,21 @@ return function(Config)
         TextTransparency = .05,
     })
     
-    local Locked, LockedTable = NewRoundFrame(Element.UICorner, "Squircle", {
+    local ElementFullFrame = New("Frame", {
         Size = UDim2.new(1,Element.UIPadding*2,1,Element.UIPadding*2),
-        ImageTransparency = .25,
+        BackgroundTransparency = 1,
         AnchorPoint = Vector2.new(0.5,0.5),
         Position = UDim2.new(0.5,0,0.5,0),
+        ZIndex = 9999999,
+    })
+    
+    local Locked, LockedTable = NewRoundFrame(Element.UICorner, "Squircle", {
+        Size = UDim2.new(1,0,1,0),
+        ImageTransparency = .25,
         ImageColor3 = Color3.new(0,0,0),
         Visible = false,
         Active = false,
-        ZIndex = 9999999,
+        Parent = ElementFullFrame,
     }, {
         New("UIListLayout", {
             FillDirection = "Horizontal",
@@ -296,6 +315,40 @@ return function(Config)
             Padding = UDim.new(0,8)
         }),
         LockedIcon, LockedTitle
+    }, nil, true)
+    
+    local HighlightOutline, HighlightOutlineTable = NewRoundFrame(Element.UICorner, "Squircle-Outline", {
+        Size = UDim2.new(1,0,1,0),
+        ImageTransparency = 1, -- 0.25
+        Active = false,
+        ThemeTag = {
+            ImageColor3 = "Text",
+        },
+        Parent = ElementFullFrame,
+    }, {
+        New("UIListLayout", {
+            FillDirection = "Horizontal",
+            VerticalAlignment = "Center",
+            HorizontalAlignment = "Center",
+            Padding = UDim.new(0,8)
+        }),
+    }, nil, true)
+    
+    local Highlight, HighlightTable = NewRoundFrame(Element.UICorner, "Squircle", {
+        Size = UDim2.new(1,0,1,0),
+        ImageTransparency = 1, -- 0.88
+        Active = false,
+        ThemeTag = {
+            ImageColor3 = "Text",
+        },
+        Parent = ElementFullFrame,
+    }, {
+        New("UIListLayout", {
+            FillDirection = "Horizontal",
+            VerticalAlignment = "Center",
+            HorizontalAlignment = "Center",
+            Padding = UDim.new(0,8)
+        }),
     }, nil, true)
     
     local Main, MainTable = NewRoundFrame(Element.UICorner, "Squircle", {
@@ -318,7 +371,7 @@ return function(Config)
             ) or nil
     }, {
         Element.UIElements.Container,
-        Locked,
+        ElementFullFrame,
         New("UIPadding", {
             PaddingTop = UDim.new(0,Element.UIPadding),
             PaddingLeft = UDim.new(0,Element.UIPadding),
@@ -358,6 +411,17 @@ return function(Config)
         end
     end
     
+    
+    function Element:Colorize(obj, prop)
+        if Element.Color then
+            obj[prop] = typeof(Element.Color) == "string" 
+                and GetTextColorForHSB(Color3.fromHex(Creator.Colors[Element.Color]))
+                or typeof(Element.Color) == "Color3" 
+                and GetTextColorForHSB(Element.Color)
+                or nil 
+        end
+    end
+    
     if Config.ElementTable then
         Creator.AddSignal(Title:GetPropertyChangedSignal("Text"), function()
             if Element.Title ~= Title.Text then
@@ -377,6 +441,127 @@ return function(Config)
         
     -- end
     
+    function Element:SetThumbnail(newThumbnail, newSize)
+        Element.Thumbnail = newThumbnail
+        if newSize then
+            Element.ThumbnailSize = newSize
+            ThumbnailSize = newSize
+        end
+        
+        if ThumbnailFrame then
+            if newThumbnail then
+                ThumbnailFrame:Destroy()
+                ThumbnailFrame = Creator.Image(
+                    newThumbnail, 
+                    Element.Title, 
+                    Element.UICorner-3, 
+                    Config.Window.Folder,
+                    "Thumbnail",
+                    false,
+                    Element.IconThemed
+                )
+                ThumbnailFrame.Size = UDim2.new(1,0,0,ThumbnailSize)
+                ThumbnailFrame.Parent = Element.UIElements.Container
+                local layout = Element.UIElements.Container:FindFirstChild("UIListLayout")
+                if layout then
+                    ThumbnailFrame.LayoutOrder = -1
+                end
+            else
+                ThumbnailFrame.Visible = false
+            end
+        else
+            if newThumbnail then
+                ThumbnailFrame = Creator.Image(
+                    newThumbnail, 
+                    Element.Title, 
+                    Element.UICorner-3, 
+                    Config.Window.Folder,
+                    "Thumbnail",
+                    false,
+                    Element.IconThemed
+                )
+                ThumbnailFrame.Size = UDim2.new(1,0,0,ThumbnailSize)
+                ThumbnailFrame.Parent = Element.UIElements.Container
+                local layout = Element.UIElements.Container:FindFirstChild("UIListLayout")
+                if layout then
+                    ThumbnailFrame.LayoutOrder = -1
+                end
+            end
+        end
+    end
+    
+    function Element:SetImage(newImage, newSize, newColor, newIconThemed)
+        Element.Image = newImage
+        if newSize then
+            Element.ImageSize = newSize
+            ImageSize = newSize
+        end
+        if newColor ~= nil then
+            Element.Color = newColor
+        end
+        if newIconThemed ~= nil then
+            Element.IconThemed = newIconThemed
+        end
+        
+        if ImageFrame then
+            if newImage then
+                ImageFrame.Size = UDim2.new(0,ImageSize,0,ImageSize)
+                Creator.UpdateImage(ImageFrame, newImage, Element.Title)
+                
+                if typeof(Element.Color) == "string" then 
+                    ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Color3.fromHex(Creator.Colors[Element.Color]))
+                elseif typeof(Element.Color) == "Color3" then
+                    ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Element.Color)
+                elseif not Element.Color then
+                    ImageFrame.ImageLabel.ImageColor3 = Color3.new(1,1,1)
+                end
+                
+                ImageFrame.Visible = true
+                IconOffset = ImageSize
+            else
+                ImageFrame.Visible = false
+                IconOffset = 0
+            end
+        else
+            if newImage then
+                ImageFrame = Creator.Image(
+                    newImage, 
+                    Element.Title, 
+                    Element.UICorner-3, 
+                    Config.Window.Folder,
+                    "Image",
+                    not Element.Color and true or false
+                )
+                
+                if typeof(Element.Color) == "string" then 
+                    ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Color3.fromHex(Creator.Colors[Element.Color]))
+                elseif typeof(Element.Color) == "Color3" then
+                    ImageFrame.ImageLabel.ImageColor3 = GetTextColorForHSB(Element.Color)
+                end
+                
+                ImageFrame.Size = UDim2.new(0,ImageSize,0,ImageSize)
+                IconOffset = ImageSize
+                
+                local horizontalContainer = Element.UIElements.Container:FindFirstChild("Frame")
+                if horizontalContainer then
+                    ImageFrame.Parent = horizontalContainer
+                    local layout = horizontalContainer:FindFirstChild("UIListLayout")
+                    if layout then
+                        ImageFrame.LayoutOrder = 0
+                    end
+                end
+            end
+        end
+        
+        local textContainer = Element.UIElements.Container:FindFirstChild("Frame")
+        if textContainer then
+            local textFrame = textContainer:FindFirstChild("Frame")
+            if textFrame then
+                textFrame.Size = UDim2.new(1,-IconOffset,1,0)
+            end
+        end
+    end
+    
     function Element:Destroy()
         Main:Destroy()
     end
@@ -394,12 +579,73 @@ return function(Config)
         Locked.Visible = false
     end
     
+    function Element:Highlight()
+        local OutlineGradient = New("UIGradient", {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+                ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1)),
+                ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
+            }),
+            Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 1),     
+                NumberSequenceKeypoint.new(0.1, 0.9),
+                NumberSequenceKeypoint.new(0.5, 0.3), 
+                NumberSequenceKeypoint.new(0.9, 0.9), 
+                NumberSequenceKeypoint.new(1, 1)      
+            }),
+            Rotation = 0,
+            Offset = Vector2.new(-1, 0),
+            Parent = HighlightOutline
+        })
+        
+        local HighlightGradient = New("UIGradient", {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+                ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1)),
+                ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
+            }),
+            Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 1),     
+                NumberSequenceKeypoint.new(0.15, 0.8),
+                NumberSequenceKeypoint.new(0.5, 0.1), 
+                NumberSequenceKeypoint.new(0.85, 0.8), 
+                NumberSequenceKeypoint.new(1, 1)      
+            }),
+            Rotation = 0,
+            Offset = Vector2.new(-1, 0),
+            Parent = Highlight
+        })
+        
+        HighlightOutline.ImageTransparency = 0.25
+        Highlight.ImageTransparency = 0.88
+        
+        Tween(OutlineGradient, 0.75, {
+            Offset = Vector2.new(1, 0)
+        }):Play()
+        
+        Tween(HighlightGradient, 0.75, {
+            Offset = Vector2.new(1, 0)
+        }):Play()
+        
+        
+        task.spawn(function()
+            task.wait(.75)
+            HighlightOutline.ImageTransparency = 1
+            Highlight.ImageTransparency = 1
+            OutlineGradient:Destroy()
+            HighlightGradient:Destroy()
+        end)
+    end
+    
+
     function Element.UpdateShape(Tab)
         if Config.Window.NewElements then
             local newShape = getElementPosition(Tab.Elements, Element.Index)
             if newShape and Main then
                 MainTable:SetType(newShape)
                 LockedTable:SetType(newShape)
+                HighlightTable:SetType(newShape)
+                HighlightOutlineTable:SetType(newShape .. "-Outline")
             end
         end
     end

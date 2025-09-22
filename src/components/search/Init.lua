@@ -395,7 +395,8 @@ function SearchBar.new(TabModule, Parent, OnClose)
                             Title = elem.Title,
                             Desc = elem.Desc,
                             Original = elem,
-                            __type = elem.__type
+                            __type = elem.__type,
+                            Index = elemindex,
                         }
                     end
                 end
@@ -439,6 +440,10 @@ function SearchBar.new(TabModule, Parent, OnClose)
                         CreateSearchTab(e.Title, e.Desc, ElementIcon, TabMainElement:FindFirstChild("ParentContainer") and TabMainElement.ParentContainer.Frame or nil, false, function()
                             SearchBarModule:Close()
                             TabModule:SelectTab(tabindex) 
+                            if i.Tab.ScrollToTheElement then
+                                --print("uooo")
+                                i.Tab:ScrollToTheElement(e.Index)
+                            end
                             --
                         end)
                         --task.wait(0)

@@ -12,12 +12,14 @@ return {
         Section     = require("./Section"),
         Divider     = require("./Divider"),
         Space       = require("./Space"),
+        Image       = require("./Image"),
     },
-    Load = function(tbl, Container, Elements, Window, WindUI, OnElementCreateFunction, ElementsModule, UIScale)
+    Load = function(tbl, Container, Elements, Window, WindUI, OnElementCreateFunction, ElementsModule, UIScale, Tab)
         for name, module in next, Elements do
             tbl[name] = function(self, config)
                 config = config or {}
-                config.Tab = tbl
+                config.Tab = Tab or tbl
+                config.ParentTable = tbl
                 config.Index = #tbl.Elements + 1
                 config.GlobalIndex = #Window.AllElements + 1
                 config.Parent = Container
@@ -38,16 +40,21 @@ return {
                 end
                 
                 if frame then
+                    content.ElementFrame = frame.UIElements.Main
                     function content:SetTitle(title)
                         frame:SetTitle(title)
                     end
                     function content:SetDesc(desc)
                         frame:SetDesc(desc)
                     end
+                    function content:Highlight()
+                        frame:Highlight()
+                    end
                     function content:Destroy()
                         
                         table.remove(Window.AllElements, config.GlobalIndex)
                         table.remove(tbl.Elements, config.Index)
+                        table.remove(Tab.Elements, config.Index)
                         tbl:UpdateAllElementShapes(tbl)
                     
                         frame:Destroy()
@@ -56,10 +63,13 @@ return {
                 
                 
                 
-                table.insert(Window.AllElements, content)
-                table.insert(tbl.Elements, content)
+                Window.AllElements[config.Index] = content
+                tbl.Elements[config.Index] =  content
+                if Tab then Tab.Elements[config.Index] =  content end
                 
-                tbl:UpdateAllElementShapes(tbl)
+                if Window.NewElements then
+                    tbl:UpdateAllElementShapes(tbl)
+                end
                 
                 if OnElementCreateFunction then
                     OnElementCreateFunction()

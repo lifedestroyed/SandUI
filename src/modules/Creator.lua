@@ -116,23 +116,25 @@ end
 
 -- ↓ Debug mode
 function Creator.SafeCallback(Function, ...)
-	if not Function then
-		return
-	end
-
-	local Success, Event = pcall(Function, ...)
-	if not Success then
-		local _, i = Event:find(":%d+: ")
-
-
-	    warn("[ WindUI: DEBUG Mode ] " .. Event)
-	    
-		return WindUI:Notify({
-			Title = "DEBUG Mode: Error",
-			Content = not i and Event or Event:sub(i + 1),
-			Duration = 8,
-		})
-	end
+    if not Function then
+        return
+    end
+    
+    local Success, Event = pcall(Function, ...)
+    if not Success then
+        if WindUI and WindUI.Window and WindUI.Window.Debug then
+            local _, i = Event:find(":%d+: ")
+        
+        
+            warn("[ WindUI: DEBUG Mode ] " .. Event)
+            
+            return WindUI:Notify({
+                Title = "DEBUG Mode: Error",
+                Content = not i and Event or Event:sub(i + 1),
+                Duration = 8,
+            })
+        end
+    end
 end
 
 function Creator.SetTheme(Theme)
@@ -264,6 +266,10 @@ function Creator.Icon(Icon)
     return Icons.Icon(Icon)
 end
 
+function Creator.AddIcons(packName, iconsData)
+    return Icons.AddIcons(packName, iconsData)
+end
+
 function Creator.New(Name, Properties, Children)
     local Object = Instance.new(Name)
     
@@ -309,10 +315,14 @@ function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton, Ret
         return shapeType == "Squircle" and "rbxassetid://80999662900595"
              or shapeType == "SquircleOutline" and "rbxassetid://117788349049947" 
              or shapeType == "SquircleOutline2" and "rbxassetid://117817408534198" 
+             or shapeType == "Squircle-Outline" and "rbxassetid://117817408534198" 
              or shapeType == "Shadow-sm" and "rbxassetid://84825982946844"
              or shapeType == "Squircle-TL-TR" and "rbxassetid://73569156276236"
              or shapeType == "Squircle-BL-BR" and "rbxassetid://93853842912264"
+             or shapeType == "Squircle-TL-TR-Outline" and "rbxassetid://136702870075563"
+             or shapeType == "Squircle-BL-BR-Outline" and "rbxassetid://75035847706564"
              or shapeType == "Square" and "rbxassetid://82909646051652"
+             or shapeType == "Square-Outline" and "rbxassetid://72946211851948"
     end
     
     local function getSliceCenterForType(shapeType)
@@ -525,6 +535,8 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
             
             ImageFrame:Destroy()
         end
+    elseif Img == "" then
+        ImageFrame.Visible = false
     else
         ImageFrame.ImageLabel.Image = Img
     end

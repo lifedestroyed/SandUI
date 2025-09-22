@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 
 local CurrentCamera = workspace.CurrentCamera
 
-local Acrylic = require("../../utils/Acrylic/Init")
+--local Acrylic = require("../../utils/Acrylic/Init")
 
 local Creator = require("../../modules/Creator")
 local New = Creator.New
@@ -42,9 +42,10 @@ return function(Config)
         HideSearchBar = Config.HideSearchBar,
         ScrollBarEnabled = Config.ScrollBarEnabled or false,
         SideBarWidth = Config.SideBarWidth or 200,
-        Acrylic = Config.Acrylic or false,
+        --Acrylic = Config.Acrylic or false,
         NewElements = Config.NewElements or false,
         HidePanelBackground = Config.HidePanelBackground or false,
+        AutoScale = Config.AutoScale,
         
         Position = UDim2.new(0.5, 0, 0.5, 0),
         IconSize = 22,
@@ -60,7 +61,7 @@ return function(Config)
         IsOpenButtonEnabled = true,
     
         ConfigManager = nil,
-        AcrylicPaint = nil,
+        --AcrylicPaint = nil,
         CurrentTab = nil,
         TabModule = nil,
         
@@ -72,6 +73,14 @@ return function(Config)
         
         TopBarButtons = {},
         AllElements = {},
+        
+        ElementConfig = {}
+    }
+    
+    
+    Window.ElementConfig = {
+        UIPadding = Window.NewElements and 10 or 13,
+        UICorner = Window.NewElements and 23 or 12,
     }
     
     local WindowSize = Window.Size or UDim2.new(0, 580, 0, 460)
@@ -84,6 +93,9 @@ return function(Config)
     
     if Window.HideSearchBar ~= false then
         Window.HideSearchBar = true
+    end
+    if Window.AutoScale ~= false then
+        Window.AutoScale = true
     end
     if Window.Resizable ~= false then
         Window.CanResize = true
@@ -104,9 +116,9 @@ return function(Config)
     
     
     
-    local AcrylicPaint, BlurModule = Acrylic.AcrylicPaint({ UseAcrylic = Window.Acrylic })
+    --local AcrylicPaint, BlurModule = Acrylic.AcrylicPaint({ UseAcrylic = Window.Acrylic })
 
-    Window.AcrylicPaint = AcrylicPaint
+    --Window.AcrylicPaint = AcrylicPaint
 
     local ResizeHandle = New("Frame", {
         Size = UDim2.new(0,32,0,32),
@@ -508,13 +520,14 @@ return function(Config)
         Position = UDim2.new(0.5,0,1,4),
         AnchorPoint = Vector2.new(0.5,0),
     }, {
-        New("Frame", {
+        New("TextButton", {
             Size = UDim2.new(1,12,1,12),
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5,0,0.5,0),
             AnchorPoint = Vector2.new(0.5,0.5),
             Active = true,
             ZIndex = 99,
+            Name = "Frame",
         })
     })
 
@@ -565,7 +578,7 @@ return function(Config)
         AnchorPoint = Vector2.new(0.5,0.5),
         Active = true,
     }, {
-        Window.AcrylicPaint.Frame,
+        --Window.AcrylicPaint.Frame,
         Blur,
         Creator.NewRoundFrame(Window.UICorner, "Squircle", {
             ImageTransparency = 1, -- Window.Transparent and 0.25 or 0
@@ -801,6 +814,8 @@ return function(Config)
                 else
                     Tween(BottomDragFrame, .2, {ImageTransparency = .8}):Play()
                 end
+                Window.Position = Window.UIElements.Main.Position
+                Window.Dragging = dragging
             end
         end
     )
@@ -1029,7 +1044,7 @@ return function(Config)
             end
             
             task.spawn(function()
-                task.wait(.5)
+                task.wait(.3)
                 Tween(BottomDragFrame, .45, {Size = UDim2.new(0,200,0,4), ImageTransparency = .8}, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
                 WindowDragModule:Set(true)
                 task.wait(.45)
@@ -1047,7 +1062,7 @@ return function(Config)
                 task.wait(.05)
                 Window.UIElements.Main:WaitForChild("Main").Visible = true
                 
-                Config.WindUI:ToggleAcrylic(true)
+                --Config.WindUI:ToggleAcrylic(true)
             end)
         end)
     end
@@ -1060,7 +1075,7 @@ return function(Config)
             end)
         end
         
-        Config.WindUI:ToggleAcrylic(false)
+        --Config.WindUI:ToggleAcrylic(false)
         
         Window.UIElements.Main:WaitForChild("Main").Visible = false
         
@@ -1111,12 +1126,14 @@ return function(Config)
                     Creator.SafeCallback(Window.OnDestroyCallback)
                 end)
             end
-            if Window.AcrylicPaint.Model then
-                Window.AcrylicPaint.Model:Destroy()
-            end
+            -- if Window.AcrylicPaint.Model then
+            --     Window.AcrylicPaint.Model:Destroy()
+            -- end
             Window.Destroyed = true
             task.wait(0.4)
-            Config.Parent.Parent:Destroy()
+            Config.WindUI.ScreenGui:Destroy()
+            Config.WindUI.NotificationGui:Destroy()
+            Config.WindUI.DropdownGui:Destroy()
             
             --Creator.DisconnectAll()
         end
@@ -1124,7 +1141,7 @@ return function(Config)
         return Close
     end
     function Window:Destroy()
-        Window:Close():Destroy()
+        return Window:Close():Destroy()
     end
     function Window:Toggle()
         if Window.Closed then
@@ -1174,21 +1191,50 @@ return function(Config)
         
         return UnlockedElements
     end
-
+    
+    function Window:GetUIScale(v)
+        return Config.WindUI.UIScale 
+    end
+    
     function Window:SetUIScale(v)
         Config.WindUI.UIScale = v
         Tween(Config.WindUI.ScreenGui.UIScale, .2, {Scale = v}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        return Window
+    end
+    
+    function Window:SetToTheCenter()
+        Tween(Window.UIElements.Main, 0.45, {Position = UDim2.new(0.5,0,0.5,0)}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        return Window
     end
     
     do
         local Margin = 40
-        if (CurrentCamera.ViewportSize.X - 40 < Window.UIElements.Main.AbsoluteSize.X) 
-        or (CurrentCamera.ViewportSize.Y - 40 < Window.UIElements.Main.AbsoluteSize.Y) then
-            if not Window.IsFullscreen then
-                Window:SetUIScale(.9)
+        local ViewportSize = CurrentCamera.ViewportSize
+        local WindowSize = Window.UIElements.Main.AbsoluteSize
+        
+        if not Window.IsFullscreen and Window.AutoScale then
+            local AvailableWidth = ViewportSize.X - (Margin * 2)
+            local AvailableHeight = ViewportSize.Y - (Margin * 2)
+            
+            local ScaleX = AvailableWidth / WindowSize.X
+            local ScaleY = AvailableHeight / WindowSize.Y
+            
+            local RequiredScale = math.min(ScaleX, ScaleY)
+            
+            local MinScale = 0.3 
+            local MaxScale = 1.0 
+            
+            local FinalScale = math.clamp(RequiredScale, MinScale, MaxScale)
+            
+            local CurrentScale = Window:GetUIScale() or 1
+            local Tolerance = 0.05 
+            
+            if math.abs(FinalScale - CurrentScale) > Tolerance then
+                Window:SetUIScale(FinalScale)
             end
         end
     end
+    
 
     if not Window.IsPC and Window.IsOpenButtonEnabled then
         Creator.AddSignal(OpenButtonMain.Button.TextButton.MouseButton1Click, function()
@@ -1456,7 +1502,7 @@ return function(Config)
     
     
     Window:CreateTopbarButton("Close", "x", function()
-        Tween(Window.UIElements.Main, 0.35, {Position = UDim2.new(0.5,0,0.5,0)}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        Window:SetToTheCenter()
         Window:Dialog({
             --Icon = "trash-2",
             Title = "Close Window",
@@ -1536,6 +1582,51 @@ return function(Config)
         end
     end)
     
+    
+    -- / Double click /
+    
+    local LastUpTime = 0
+    local DoubleClickWindow = 0.4
+    local InitialPosition = nil
+    local ClickCount = 0
+    
+    function onDoubleClick()
+        Window:SetToTheCenter()
+    end
+    
+    BottomDragFrame.Frame.MouseButton1Up:Connect(function()
+        local currentTime = tick()
+        local currentPosition = Window.Position
+        
+        ClickCount = ClickCount + 1
+        
+        if ClickCount == 1 then
+            LastUpTime = currentTime
+            InitialPosition = currentPosition
+            
+            task.spawn(function()
+                task.wait(DoubleClickWindow)
+                if ClickCount == 1 then
+                    ClickCount = 0
+                    InitialPosition = nil
+                end
+            end)
+            
+        elseif ClickCount == 2 then
+            if currentTime - LastUpTime <= DoubleClickWindow and currentPosition == InitialPosition then
+                onDoubleClick()
+            end
+            
+            ClickCount = 0
+            InitialPosition = nil
+            LastUpTime = 0
+        else
+            ClickCount = 1
+            LastUpTime = currentTime
+            InitialPosition = currentPosition
+        end
+    end)
+        
     
     
     -- / Search Bar /
