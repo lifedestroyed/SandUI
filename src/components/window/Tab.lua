@@ -406,7 +406,7 @@ function TabModule.New(Config, UIScale)
     end
     
     function Tab:Select()
-        return Tab:SelectTab(Tab.Index)
+        return TabModule:SelectTab(Tab.Index)
     end
     
 	task.spawn(function()

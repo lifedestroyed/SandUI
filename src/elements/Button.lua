@@ -58,7 +58,7 @@ function Element:New(Config)
         0,
         Config.Window.Folder,
         "Button",
-        true,
+        not Button.Color and true or nil,
         Button.IconThemed
     )
     

@@ -20,6 +20,7 @@ function Element:New(Config)
         
         Width = 130,
         TextBoxWidth = 30,
+        ThumbSize = 13,
     }
     local isTouch
     local moveconnection
@@ -77,12 +78,13 @@ function Element:New(Config)
             },
         }, {
             Creator.NewRoundFrame(99, "Squircle", {
-                Size = UDim2.new(0, 13, 0, 13),
+                Size = UDim2.new(0, Slider.ThumbSize, 0, Slider.ThumbSize),
                 Position = UDim2.new(1, 0, 0.5, 0),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 ThemeTag = {
                     ImageColor3 = "Text",
                 },
+                Name = "Thumb",
             })
         })
     })
@@ -143,7 +145,7 @@ function Element:New(Config)
                 Value = CalculateValue(Slider.Value.Min + delta * (Slider.Value.Max - Slider.Value.Min))
     
                 if Value ~= LastValue then
-                    Tween(Slider.UIElements.SliderIcon.Frame, 0.08, {Size = UDim2.new(delta,0,1,0)}):Play()
+                    Tween(Slider.UIElements.SliderIcon.Frame, 0.05, {Size = UDim2.new(delta,0,1,0)}):Play()
                     Slider.UIElements.SliderContainer.TextBox.Text = FormatValue(Value)
                     Slider.Value.Default = FormatValue(Value)
                     LastValue = Value
@@ -160,7 +162,7 @@ function Element:New(Config)
                         Value = CalculateValue(Slider.Value.Min + delta * (Slider.Value.Max - Slider.Value.Min))
     
                         if Value ~= LastValue then
-                            Tween(Slider.UIElements.SliderIcon.Frame, 0.08, {Size = UDim2.new(delta,0,1,0)}):Play()
+                            Tween(Slider.UIElements.SliderIcon.Frame, 0.05, {Size = UDim2.new(delta,0,1,0)}):Play()
                             Slider.UIElements.SliderContainer.TextBox.Text = FormatValue(Value)
                             Slider.Value.Default = FormatValue(Value)
                             LastValue = Value
@@ -173,10 +175,36 @@ function Element:New(Config)
                             releaseconnection:Disconnect()
                             HoldingSlider = false
                             ScrollingFrameParent.ScrollingEnabled = true
+                            
+                            Tween(Slider.UIElements.SliderIcon.Frame.Thumb, .12, { Size = UDim2.new(0,Slider.ThumbSize,0,Slider.ThumbSize) }, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut):Play()
                         end
                     end)
                 end
             end
+        end
+    end
+    
+    function Slider:SetMax(newMax)
+        Slider.Value.Max = newMax
+        
+        local currentValue = tonumber(Slider.Value.Default) or LastValue
+        if currentValue > newMax then
+            Slider:Set(newMax)
+        else
+            local newDelta = math.clamp((currentValue - (Slider.Value.Min or 0)) / (newMax - (Slider.Value.Min or 0)), 0, 1)
+            Tween(Slider.UIElements.SliderIcon.Frame, 0.1, {Size = UDim2.new(newDelta, 0, 1, 0)}):Play()
+        end
+    end
+    
+    function Slider:SetMin(newMin)
+        Slider.Value.Min = newMin
+        
+        local currentValue = tonumber(Slider.Value.Default) or LastValue
+        if currentValue < newMin then
+            Slider:Set(newMin)
+        else
+            local newDelta = math.clamp((currentValue - newMin) / ((Slider.Value.Max or 100) - newMin), 0, 1)
+            Tween(Slider.UIElements.SliderIcon.Frame, 0.1, {Size = UDim2.new(newDelta, 0, 1, 0)}):Play()
         end
     end
     
@@ -193,6 +221,10 @@ function Element:New(Config)
     
     Creator.AddSignal(Slider.UIElements.SliderContainer.InputBegan, function(input)
         Slider:Set(Value, input)
+        
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            Tween(Slider.UIElements.SliderIcon.Frame.Thumb, .12, { Size = UDim2.new(0,Slider.ThumbSize+8,0,Slider.ThumbSize+8) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        end
     end)
     
     return Slider.__type, Slider

@@ -45,10 +45,11 @@ return function(Config)
         --Acrylic = Config.Acrylic or false,
         NewElements = Config.NewElements or false,
         HidePanelBackground = Config.HidePanelBackground or false,
-        AutoScale = Config.AutoScale,
+        AutoScale = Config.AutoScale, -- or true
+        OpenButton = Config.OpenButton,
         
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        IconSize = 22,
+        IconSize = Config.IconSize or 22,
         UICorner = 16,
         UIPadding = 14,
         UIElements = {},
@@ -68,6 +69,8 @@ return function(Config)
         OnOpenCallback    = nil,
         OnCloseCallback   = nil,
         OnDestroyCallback = nil,
+        
+        IsPC = false,
         
         Gap = 5,
         
@@ -287,6 +290,7 @@ return function(Config)
         Window.IsPC = nil
     end
     
+    --Window.IsPC = true
     
     
     
@@ -297,8 +301,8 @@ return function(Config)
     
     local UserIcon
     if Window.User then
-        local function getUserThumb()
-            local ImageId, _ = game.Players:GetUserThumbnailAsync(
+        local function GetUserThumb()
+            local ImageId, _ = game:GetService("Players"):GetUserThumbnailAsync(
                 Window.User.Anonymous and 1 or game.Players.LocalPlayer.UserId, 
                 Enum.ThumbnailType.HeadShot, 
                 Enum.ThumbnailSize.Size420x420
@@ -349,7 +353,7 @@ return function(Config)
                 Name = "UserIcon",
             }, {
                 New("ImageLabel", {
-                    Image = getUserThumb(),
+                    Image = GetUserThumb(),
                     BackgroundTransparency = 1,
                     Size = UDim2.new(0,42,0,42),
                     ThemeTag = {
@@ -425,7 +429,7 @@ return function(Config)
         function Window.User:SetAnonymous(v)
             if v ~= false then v = true end
             Window.User.Anonymous = v
-            UserIcon.UserIcon.ImageLabel.Image = getUserThumb()
+            UserIcon.UserIcon.ImageLabel.Image = GetUserThumb()
             UserIcon.UserIcon.Frame.DisplayName.Text = v and "Anonymous" or game.Players.LocalPlayer.DisplayName
             UserIcon.UserIcon.Frame.UserName.Text = v and "anonymous" or game.Players.LocalPlayer.Name
         end
@@ -455,37 +459,44 @@ return function(Config)
     local Outline2
     
     
-    
     local IsVideoBG = false
     local BGImage = nil
     
     local BGVideo = typeof(Window.Background) == "string" and string.match(Window.Background, "^video:(.+)") or nil
+    local BGImageUrl = typeof(Window.Background) == "string" and not BGVideo and string.match(Window.Background, "^https?://.+") or nil
+    
+    local function SanitizeFilename(str)
+        str = str:gsub("[%s/\\:*?\"<>|]+", "-")
+        str = str:gsub("[^%w%-_%.]", "")
+        return str
+    end
     
     if typeof(Window.Background) == "string" and BGVideo then
         IsVideoBG = true
-        
+    
         if string.find(BGVideo, "http") then
-            local function SanitizeFilename(str)
-                str = str:gsub("[%s/\\:*?\"<>|]+", "-")
-                str = str:gsub("[^%w%-_%.]", "")
-                return str
-            end
-
             local videoPath = Window.Folder .. "/Assets/." .. SanitizeFilename(BGVideo) .. ".webm"
             if not isfile(videoPath) then
                 local success, result = pcall(function()
-                    local response = game:HttpGet(BGVideo)
-                    writefile(videoPath, response)
+                    local response = Creator.Request({Url = BGVideo, Method="GET"})
+                    writefile(videoPath, response.Body)
                 end)
-            
                 if not success then
-                    warn("[ WindUI.Background ]  Failed to download video: " .. tostring(result))
+                    warn("[ Window.Background ] Failed to download video: " .. tostring(result))
                     return
                 end
             end
-            BGVideo = getcustomasset(videoPath)
+    
+            local success, customAsset = pcall(function()
+                return getcustomasset(videoPath)
+            end)
+            if not success then
+                warn("[ Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
+                return
+            end
+            BGVideo = customAsset
         end
-        
+    
         BGImage = New("VideoFrame", {
             BackgroundTransparency = 1,
             Size = UDim2.new(1,0,1,0),
@@ -498,6 +509,40 @@ return function(Config)
             }),
         })
         BGImage:Play()
+    
+    elseif BGImageUrl then
+        local imagePath = Window.Folder .. "/Assets/." .. SanitizeFilename(BGImageUrl) .. ".png"
+        if not isfile(imagePath) then
+            local success, result = pcall(function()
+                local response = Creator.Request({Url = BGImageUrl, Method="GET"})
+                writefile(imagePath, response.Body)
+            end)
+            if not success then
+                warn("[ Window.Background ] Failed to download image: " .. tostring(result))
+                return
+            end
+        end
+    
+        local success, customAsset = pcall(function()
+            return getcustomasset(imagePath)
+        end)
+        if not success then
+            warn("[ Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
+            return
+        end
+    
+        BGImage = New("ImageLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1,0,1,0),
+            Image = customAsset,
+            ImageTransparency = 0,
+            ScaleType = "Crop",
+        }, {
+            New("UICorner", {
+                CornerRadius = UDim.new(0,Window.UICorner)
+            }),
+        })
+    
     elseif Window.Background then
         BGImage = New("ImageLabel", {
             BackgroundTransparency = 1,
@@ -849,7 +894,7 @@ return function(Config)
     --     OpenButtonDragModule = Creator.Drag(OpenButtonContainer)
     -- end
     
-    local OpenButtonMain = require("./Openbutton").New(Window)
+    Window.OpenButtonMain = require("./Openbutton").New(Window)
 
     
     task.spawn(function()
@@ -867,7 +912,7 @@ return function(Config)
             WindowIcon.Parent = Window.UIElements.Main.Main.Topbar.Left
             WindowIcon.Size = UDim2.new(0,Window.IconSize,0,Window.IconSize)
             
-            OpenButtonMain:SetIcon(Window.Icon)
+            Window.OpenButtonMain:SetIcon(Window.Icon)
             
             -- if Creator.Icon(tostring(Window.Icon)) and Creator.Icon(tostring(Window.Icon))[1] then
             --     -- ImageLabel.Image = Creator.Icon(Window.Icon)[1]
@@ -880,7 +925,7 @@ return function(Config)
             -- end
             -- end
         else
-            OpenButtonMain:SetIcon(Window.Icon)
+            Window.OpenButtonMain:SetIcon(Window.Icon)
             --OpenButtonIcon.Visible = false
         end
     end)
@@ -907,8 +952,14 @@ return function(Config)
         Window.UIElements.Main.Background.ImageLabel.Image = id
     end
     function Window:SetBackgroundImageTransparency(v)
-        Window.UIElements.Main.Background.ImageLabel.ImageTransparency = v
-        Window.BackgroundImageTransparency = v
+        if BGImage and BGImage:IsA("ImageLabel") then
+            BGImage.ImageTransparency = math.floor(v + 0.5)
+        end
+        Window.BackgroundImageTransparency = math.floor(v + 0.5)
+    end
+    function Window:SetBackgroundTransparency(v)
+        WindUI.TransparencyValue = math.floor(tonumber(v) + 0.5)
+        Window:ToggleTransparency(math.floor(tonumber(v) + 0.5) > 0)
     end
     
     local CurrentPos
@@ -952,7 +1003,7 @@ return function(Config)
             task.wait(.3)
             if not Window.IsPC and Window.IsOpenButtonEnabled then
                 -- OpenButtonContainer.Visible = true
-                OpenButtonMain:Visible(true)
+                Window.OpenButtonMain:Visible(true)
             end
         end)
         
@@ -1030,11 +1081,11 @@ return function(Config)
             if BGImage then
                 if BGImage:IsA("VideoFrame") then
                     BGImage.Visible = true
+                else
+                    Tween(BGImage, 0.2, {
+                        ImageTransparency = Window.BackgroundImageTransparency,
+                    }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
                 end
-                Tween(BGImage, 0.2, {
-                    ImageTransparency = BGImage:IsA("ImageLabel") and 0 or nil,
-                    --BackgroundTransparency = BGImage:IsA("VideoFrame") and 0 or nil,
-                }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
             end            
             
             --Tween(Window.UIElements.Main.Background.UIScale, 0.2, {Scale = 1}, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
@@ -1099,11 +1150,11 @@ return function(Config)
         if BGImage then
             if BGImage:IsA("VideoFrame") then
                 BGImage.Visible = false
+            else
+                Tween(BGImage, 0.3, {
+                    ImageTransparency = 1,
+                }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
             end
-            Tween(BGImage, 0.2, {
-                ImageTransparency = BGImage:IsA("ImageLabel") and 1 or nil,
-                --BackgroundTransparency = BGImage:IsA("VideoFrame") and 1 or nil,
-            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
         end
         Tween(Blur, 0.25, {ImageTransparency = 1}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
         if UIStroke then
@@ -1236,10 +1287,10 @@ return function(Config)
     end
     
 
-    if not Window.IsPC and Window.IsOpenButtonEnabled then
-        Creator.AddSignal(OpenButtonMain.Button.TextButton.MouseButton1Click, function()
+    if Window.OpenButtonMain and Window.OpenButtonMain.Button then
+        Creator.AddSignal(Window.OpenButtonMain.Button.TextButton.MouseButton1Click, function()
             -- OpenButtonContainer.Visible = false
-            OpenButtonMain:Visible(false)
+            Window.OpenButtonMain:Visible(false)
             Window:Open()
         end)
     end
@@ -1260,7 +1311,11 @@ return function(Config)
     end)
     
     function Window:EditOpenButton(OpenButtonConfig)
-        return OpenButtonMain:Edit(OpenButtonConfig)
+        return Window.OpenButtonMain:Edit(OpenButtonConfig)
+    end
+    
+    if Window.OpenButton and typeof(Window.OpenButton) == "table" then
+        Window:EditOpenButton(Window.OpenButton)
     end
     
     
@@ -1456,8 +1511,8 @@ return function(Config)
             
             wait()
             
-            local totalWidth = ButtonsLayout.AbsoluteContentSize.X
-            local parentWidth = ButtonsContent.AbsoluteSize.X
+            local totalWidth = ButtonsLayout.AbsoluteContentSize.X / Config.WindUI.UIScale
+            local parentWidth = ButtonsContent.AbsoluteSize.X / Config.WindUI.UIScale
             
             if totalWidth > parentWidth then
                 ButtonsLayout.FillDirection = Enum.FillDirection.Vertical
@@ -1476,7 +1531,7 @@ return function(Config)
                     local smallestWidth = math.huge
                     
                     for _, button in ipairs(Buttons) do
-                        local buttonWidth = button.AbsoluteSize.X
+                        local buttonWidth = button.AbsoluteSize.X / Config.WindUI.UIScale
                         if buttonWidth < smallestWidth then
                             smallestWidth = buttonWidth
                             smallestButton = button
@@ -1655,7 +1710,7 @@ return function(Config)
         --     Window.CanResize = false
         -- end, 996)
         
-        local SearchLabel = CreateLabel("Search", "search", Window.UIElements.SideBarContainer)
+        local SearchLabel = CreateLabel("Search", "search", Window.UIElements.SideBarContainer, true)
         SearchLabel.Size = UDim2.new(1,-Window.UIPadding/2,0,39)
         SearchLabel.Position = UDim2.new(0,Window.UIPadding/2,0,Window.UIPadding/2)
         

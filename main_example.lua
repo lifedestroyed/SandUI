@@ -8,12 +8,27 @@ local Window = WindUI:CreateWindow({
     NewElements = true,
     
     HideSearchBar = false,
+    
+    OpenButton = {
+        Title = "Open .ftgs hub UI", -- can be changed
+        CornerRadius = UDim.new(1,0), -- fully rounded
+        StrokeThickness = 3, -- removing outline
+        Enabled = true, -- enable or disable openbutton
+        Draggable = true,
+        OnlyMobile = false,
+        
+        Color = ColorSequence.new( -- gradient
+            Color3.fromHex("#30FF6A"), 
+            Color3.fromHex("#e7ff2f")
+        )
+    }
 })
 
 --Window:SetTitle(Window.Title .. " | " .. WindUI.Version)
 
 
 -- */  Configuring OpenButton  /* --
+--[[ moved to :CreateWindow(...)
 Window:EditOpenButton({
     Title = "Open .ftgs hub UI", -- can be changed
     CornerRadius = UDim.new(1,0), -- fully rounded
@@ -29,7 +44,7 @@ Window:EditOpenButton({
     
     -- Icon = "monitor",
 })
-
+--]]
 
 
 -- */ Other Functions /* --

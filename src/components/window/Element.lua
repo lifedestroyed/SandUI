@@ -241,7 +241,7 @@ return function(Config)
                 AutomaticSize = Element.Justify == "Between" and "Y" or "XY",
                 Size = UDim2.new(
                     Element.Justify == "Between" and 1 or 0,
-                    Element.Justify == "Between" and -IconOffset or 0,
+                    Element.Justify == "Between" and ( ImageFrame and -IconOffset-Element.UIPadding or -IconOffset ) or 0,
                     1,
                     0
                 ),
@@ -553,13 +553,13 @@ return function(Config)
             end
         end
         
-        local textContainer = Element.UIElements.Container:FindFirstChild("Frame")
-        if textContainer then
-            local textFrame = textContainer:FindFirstChild("Frame")
-            if textFrame then
-                textFrame.Size = UDim2.new(1,-IconOffset,1,0)
-            end
-        end
+        -- local textContainer = Element.UIElements.Container.TitleFrame
+        -- if textContainer then
+        --     local textFrame = textContainer:FindFirstChild("Frame")
+        --     if textFrame then
+        --         textFrame.Size = UDim2.new(1,-IconOffset,1,0)
+        --     end
+        -- end
     end
     
     function Element:Destroy()

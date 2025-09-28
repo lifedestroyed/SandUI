@@ -1,12 +1,18 @@
-# 1.6.52
+# 1.6.53
 ## Changelog:
-- Added `:SetThumbnail(thumbnail: string, size: number)` and `:SetImage(thumbnail: string, size: number)` to `Paragraph` element
-- Added `:AddIcons(name: string, icons: table)` to `WindUI.Creator`
-- Added `Tab:ScrollToTheElement(index: number)`
-- Added `Window.Position` and `Window.Dragging`
-- Added `Debug` to `:CreateWindow()`
-- Added `Window:SetToTheCenter()`
-- Added `Image` element
-- Added a double-click for the bottom drag frame
-- Fixed some bugs
-- Removed Acrylic (detected in some places)
+- Themes Rework (Gradients, Color3)
+- Fixed Label Colors
+- Fixed `Tab:Select()`
+- Fixed Dropdown Height
+- Fixed `Window.BackgroundImageTransparency`
+- Fixed Window Background Animation
+- Fixed Input
+- Fixed Section Center Text
+- Fixed OpenButton on PC
+- Fixed UI in studio (maybe)
+- Added `IconSize` to `Window`
+- Added `OpenButton` to `:CreateWindow()`
+- Added Icons to `Dropdown`
+- Added `IconOnly` to `OpenButton`
+- Added Section box
+- Added `:SetMax(number)` and `:SetMin(number)` to `Slider`

@@ -47,6 +47,10 @@ function OpenButton.New(Window)
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5,0,0.5,0),
             AnchorPoint = Vector2.new(0.5,0.5),
+            ThemeTag = {
+                ImageColor3 = "Icon",
+            },
+            ImageTransparency = .3,
         })
     })
     local Divider = New("Frame", {
@@ -119,8 +123,8 @@ function OpenButton.New(Window)
             }),
             Title,
             New("UIPadding", {
-                PaddingLeft = UDim.new(0,8+4),
-                PaddingRight = UDim.new(0,8+4),
+                PaddingLeft = UDim.new(0,7+4),
+                PaddingRight = UDim.new(0,7+4),
             }),
         }),
         New("UIPadding", {
@@ -186,6 +190,7 @@ function OpenButton.New(Window)
             Icon = OpenButtonConfig.Icon,
             Enabled = OpenButtonConfig.Enabled,
             Position = OpenButtonConfig.Position,
+            OnlyIcon = OpenButtonConfig.OnlyIcon or false,
             Draggable = OpenButtonConfig.Draggable,
             OnlyMobile = OpenButtonConfig.OnlyMobile,
             CornerRadius = OpenButtonConfig.CornerRadius or UDim.new(1, 0),
@@ -206,6 +211,7 @@ function OpenButton.New(Window)
             Window.IsPC = false
         end
         
+        
         if OpenButtonModule.Draggable == false and Drag and Divider then
             Drag.Visible = OpenButtonModule.Draggable
             Divider.Visible = OpenButtonModule.Draggable
@@ -217,6 +223,12 @@ function OpenButton.New(Window)
         
         if OpenButtonModule.Position and Container then
             Container.Position = OpenButtonModule.Position
+        end
+        
+        if OpenButtonModule.OnlyIcon and Title then
+            Title.Visible = false
+            Button.TextButton.UIPadding.PaddingLeft = UDim.new(0,7)
+            Button.TextButton.UIPadding.PaddingRight = UDim.new(0,7)
         end
         
         --OpenButtonMain:Visible((not OpenButtonModule.OnlyMobile) or (not Window.IsPC))

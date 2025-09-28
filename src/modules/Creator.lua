@@ -1,27 +1,27 @@
---[[
-
-Credits: dawid 
-
-]]
-
 local RunService = game:GetService("RunService")
 local RenderStepped = RunService.Heartbeat
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalizationService = game:GetService("LocalizationService")
+local HttpService = game:GetService("HttpService")
 
-local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
+local IconsURL = "https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"
+
+local Icons = loadstring(
+    game.HttpGetAsync and game:HttpGetAsync(IconsURL)
+    or HttpService:GetAsync(IconsURL)
+)()
 Icons.SetIconsType("lucide")
-
 
 local WindUI
 
 local Creator = {
-    Font = "rbxassetid://12187365364", -- Inter
+    Font = "rbxassetid://12187365364",
     Localization = nil,
     CanDraggable = true,
     Theme = nil,
     Themes = nil,
+    Icons = Icons,
     Signals = {},
     Objects = {},
     LocalizationObjects = {},
@@ -86,16 +86,14 @@ local Creator = {
         }
     },
     Colors = {
-        Red = "#e53935",    -- Danger
-        Orange = "#f57c00", -- Warning
-        Green = "#43a047",  -- Success
-        Blue = "#039be5",   -- Info
-        White = "#ffffff",   -- White
-        Grey = "#484848",   -- Grey
+        Red = "#e53935",
+        Orange = "#f57c00",
+        Green = "#43a047",
+        Blue = "#039be5",
+        White = "#ffffff",
+        Grey = "#484848",
     },
 }
-
-
 
 function Creator.Init(WindUITable)
     WindUI = WindUITable
@@ -114,7 +112,6 @@ function Creator.DisconnectAll()
 	end
 end
 
--- ↓ Debug mode
 function Creator.SafeCallback(Function, ...)
     if not Function then
         return
@@ -125,7 +122,6 @@ function Creator.SafeCallback(Function, ...)
         if WindUI and WindUI.Window and WindUI.Window.Debug then
             local _, i = Event:find(":%d+: ")
         
-        
             warn("[ WindUI: DEBUG Mode ] " .. Event)
             
             return WindUI:Notify({
@@ -135,6 +131,44 @@ function Creator.SafeCallback(Function, ...)
             })
         end
     end
+end
+
+function Creator.Gradient(stops, props)
+    if WindUI and WindUI.Gradient then
+        return WindUI:Gradient(stops, props)
+    end
+    
+    local colorSequence = {}
+    local transparencySequence = {}
+
+    for posStr, stop in next, stops do
+        local position = tonumber(posStr)
+        if position then
+            position = math.clamp(position / 100, 0, 1)
+            table.insert(colorSequence, ColorSequenceKeypoint.new(position, stop.Color))
+            table.insert(transparencySequence, NumberSequenceKeypoint.new(position, stop.Transparency or 0))
+        end
+    end
+
+    table.sort(colorSequence, function(a, b) return a.Time < b.Time end)
+    table.sort(transparencySequence, function(a, b) return a.Time < b.Time end)
+
+    if #colorSequence < 2 then
+        error("ColorSequence requires at least 2 keypoints")
+    end
+
+    local gradientData = {
+        Color = ColorSequence.new(colorSequence),
+        Transparency = NumberSequence.new(transparencySequence),
+    }
+
+    if props then
+        for k, v in pairs(props) do
+            gradientData[k] = v
+        end
+    end
+
+    return gradientData
 end
 
 function Creator.SetTheme(Theme)
@@ -155,7 +189,27 @@ function Creator.UpdateFont(FontId)
 end
 
 function Creator.GetThemeProperty(Property, Theme)
-    return Theme[Property] or Creator.Themes["Dark"][Property]
+    local value = Theme[Property] or Creator.Themes["Dark"][Property]
+    
+    if not value then return nil end
+    
+    if type(value) == "string" and string.sub(value, 1, 1) == "#" then
+        return Color3.fromHex(value)
+    end
+    
+    if typeof(value) == "Color3" then
+        return value
+    end
+    
+    if type(value) == "table" and value.Color and value.Transparency then
+        return value
+    end
+    
+    if type(value) == "function" then
+        return value()
+    end
+    
+    return nil
 end
 
 function Creator.AddThemeObject(Object, Properties)
@@ -163,6 +217,7 @@ function Creator.AddThemeObject(Object, Properties)
     Creator.UpdateTheme(Object, false)
     return Object
 end
+
 function Creator.AddLangObject(idx)
     local currentObj = Creator.LocalizationObjects[idx]
     local Object = currentObj.Object
@@ -174,12 +229,42 @@ end
 function Creator.UpdateTheme(TargetObject, isTween)
     local function ApplyTheme(objData)
         for Property, ColorKey in pairs(objData.Properties or {}) do
-            local Color = Creator.GetThemeProperty(ColorKey, Creator.Theme)
-            if Color then
-                if not isTween then
-                    objData.Object[Property] = Color3.fromHex(Color)
-                else
-                    Creator.Tween(objData.Object, 0.08, { [Property] = Color3.fromHex(Color) }):Play()
+            local value = Creator.GetThemeProperty(ColorKey, Creator.Theme)
+            if value then
+                if typeof(value) == "Color3" then
+                    local gradient = objData.Object:FindFirstChild("WindUIGradient")
+                    if gradient then
+                        gradient:Destroy()
+                    end
+                    
+                    if not isTween then
+                        objData.Object[Property] = value
+                    else
+                        Creator.Tween(objData.Object, 0.08, { [Property] = value }):Play()
+                    end
+                elseif type(value) == "table" and value.Color and value.Transparency then
+                    objData.Object[Property] = Color3.new(1, 1, 1)
+                    
+                    local gradient = objData.Object:FindFirstChild("WindUIGradient")
+                    if not gradient then
+                        gradient = Instance.new("UIGradient")
+                        gradient.Name = "WindUIGradient"
+                        gradient.Parent = objData.Object
+                    end
+                    
+                    gradient.Color = value.Color
+                    gradient.Transparency = value.Transparency
+                    
+                    for prop, propValue in pairs(value) do
+                        if prop ~= "Color" and prop ~= "Transparency" and gradient[prop] ~= nil then
+                            gradient[prop] = propValue
+                        end
+                    end
+                end
+            else
+                local gradient = objData.Object:FindFirstChild("WindUIGradient")
+                if gradient then
+                    gradient:Destroy()
                 end
             end
         end
@@ -219,7 +304,6 @@ function Creator.SetLangForObject(index)
     end
 end
 
-
 function Creator:ChangeTranslationKey(object, newKey)
     if Creator.Localization and Creator.Localization.Enabled then
         local ParsedKey = string.match(newKey, "^" .. Creator.Localization.Prefix .. "(.+)")
@@ -240,7 +324,6 @@ function Creator:ChangeTranslationKey(object, newKey)
         end
     end
 end
-
 
 function Creator.UpdateLang(newLang)
     if newLang then
@@ -308,7 +391,6 @@ end
 function Creator.Tween(Object, Time, Properties, ...)
     return TweenService:Create(Object, TweenInfo.new(Time, ...), Properties)
 end
-
 
 function Creator.NewRoundFrame(Radius, Type, Properties, Children, isButton, ReturnTable)
     local function getImageForType(shapeType)
@@ -482,8 +564,7 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
     Name = SanitizeFilename(Name)
     
     local ImageFrame = New("Frame", {
-        Size = UDim2.new(0,0,0,0), -- czjzjznsmMdj
-        --AutomaticSize = "XY",
+        Size = UDim2.new(0,0,0,0),
         BackgroundTransparency = 1,
     }, {
         New("ImageLabel", {
@@ -500,10 +581,6 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed)
         })
     })
     if Creator.Icon(Img) then
-        -- ImageFrame.ImageLabel.Image = Creator.Icon(Img)[1]
-        -- ImageFrame.ImageLabel.ImageRectOffset = Creator.Icon(Img)[2].ImageRectPosition
-        -- ImageFrame.ImageLabel.ImageRectSize = Creator.Icon(Img)[2].ImageRectSize
-        
         ImageFrame.ImageLabel:Destroy()
         
         local IconLabel = Icons.Image({ 

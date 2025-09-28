@@ -72,9 +72,10 @@ function Toggle.New(Value, Icon, Parent, Callback)
         })
     })
     
+    
     function Toggle:Set(Toggled, isCallback)
         if Toggled then
-            Tween(ToggleFrame.Frame, 0.1, {
+            Tween(ToggleFrame.Frame, 0.15, {
                 Position = UDim2.new(1, -18 - 3 - 1, 0.5, 0),
                 --Size = UDim2.new(0,20,0,20),
             }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
@@ -91,7 +92,7 @@ function Toggle.New(Value, Icon, Parent, Callback)
                 }):Play()
             end
         else
-            Tween(ToggleFrame.Frame, 0.1, {
+            Tween(ToggleFrame.Frame, 0.15, {
                 Position = UDim2.new(0, 4, 0.5, 0),
                 Size = UDim2.new(0,18,0,18),
             }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()

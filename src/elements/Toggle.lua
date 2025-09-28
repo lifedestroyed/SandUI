@@ -69,8 +69,8 @@ function Element:New(Config)
         error("Unknown Toggle Type: " .. tostring(Toggle.Type))
     end
 
-    ToggleFrame.AnchorPoint = Vector2.new(1,0)
-    ToggleFrame.Position = UDim2.new(1,0,0,0)
+    ToggleFrame.AnchorPoint = Vector2.new(1,Config.Window.NewElements and 0 or 0.5)
+    ToggleFrame.Position = UDim2.new(1,0,Config.Window.NewElements and 0 or 0.5,0)
         
     function Toggle:Set(v, isCallback)
         if CanCallback then
