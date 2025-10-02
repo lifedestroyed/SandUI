@@ -10,6 +10,9 @@ function Element:New(Config)
         Desc = Config.Desc or nil,
         Icon = Config.Icon or "mouse-pointer-click",
         IconThemed = Config.IconThemed or false,
+        Color = Config.Color,
+        Justify = Config.Justify or "Between",
+        IconAlign = Config.IconAlign or "Right",
         Locked = Config.Locked or false,
         Callback = Config.Callback or function() end,
         UIElements = {}
@@ -26,6 +29,8 @@ function Element:New(Config)
         -- Thumbnail = Config.Thumbnail,
         -- ThumbnailSize = Config.ThumbnailSize,
         Window = Config.Window,
+        Color = Button.Color,
+        Justify = Button.Justify,
         TextOffset = 20,
         Hover = true,
         Scalable = true,
@@ -53,13 +58,17 @@ function Element:New(Config)
         0,
         Config.Window.Folder,
         "Button",
-        true,
+        not Button.Color and true or nil,
         Button.IconThemed
     )
+    
     Button.UIElements.ButtonIcon.Size = UDim2.new(0,20,0,20)
-    Button.UIElements.ButtonIcon.Parent = Button.ButtonFrame.UIElements.Main
+    Button.UIElements.ButtonIcon.Parent = Button.Justify == "Between" and Button.ButtonFrame.UIElements.Main or Button.ButtonFrame.UIElements.Container.TitleFrame
+    Button.UIElements.ButtonIcon.LayoutOrder = Button.IconAlign == "Left" and -99999 or 99999
     Button.UIElements.ButtonIcon.AnchorPoint = Vector2.new(1,0.5)
     Button.UIElements.ButtonIcon.Position = UDim2.new(1,0,0.5,0)
+    
+    Button.ButtonFrame:Colorize(Button.UIElements.ButtonIcon.ImageLabel, "ImageColor3")
     
     function Button:Lock()
         Button.Locked = true

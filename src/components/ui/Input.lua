@@ -5,7 +5,7 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 
-function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius)
+function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius, ClearTextOnFocus)
     Type = Type or "Input"
     local Radius = Radius or 10
     local IconInputFrame
@@ -30,7 +30,7 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius)
         FontFace = Font.new(Creator.Font, Enum.FontWeight.Regular),
         Size = UDim2.new(1,IconInputFrame and -29 or 0,1,0),
         PlaceholderText = Placeholder,
-        ClearTextOnFocus = false,
+        ClearTextOnFocus = ClearTextOnFocus or false,
         ClipsDescendants = true,
         TextWrapped = isMulti,
         MultiLine = isMulti,
@@ -57,7 +57,7 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius)
                     ImageColor3 = "Accent",
                 },
                 Size = UDim2.new(1,0,1,0),
-                ImageTransparency = .85,
+                ImageTransparency = .97,
             }),
             Creator.NewRoundFrame(Radius, "SquircleOutline", {
                 ThemeTag = {

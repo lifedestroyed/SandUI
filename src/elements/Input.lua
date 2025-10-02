@@ -51,7 +51,8 @@ function Element:New(Config)
             Input:Set(v)
         end,
         nil,
-        Config.Window.NewElements and 12 or 10
+        Config.Window.NewElements and 12 or 10,
+        Input.ClearTextOnFocus
     )
     
     if Input.Type == "Input" then

@@ -636,6 +636,7 @@ function Element:New(Config)
         Default = Config.Default or Color3.new(1,1,1),
         Callback = Config.Callback or function() end,
         --Window = Config.Window,
+        UIScale = Config.UIScale,
         Transparency = Config.Transparency,
         UIElements = {}
     }

@@ -11,7 +11,10 @@ function Element:New(Config)
         Icon = Config.Icon,
         TextXAlignment = Config.TextXAlignment or "Left",
         TextSize = Config.TextSize or 19,
+        Box = Config.Box or false,
+        FontWeight = Config.FontWeight or Enum.FontWeight.SemiBold,
         TextTransparency = Config.TextTransparency or 0.05,
+        Opened = Config.Opened or false,
         UIElements = {},
         
         HeaderSize = 42,
@@ -67,49 +70,68 @@ function Element:New(Config)
     
     local TitleFrame = New("TextLabel", {
         BackgroundTransparency = 1,
-        TextXAlignment = "Left",
+        TextXAlignment = Section.TextXAlignment,
         AutomaticSize = "Y",
         TextSize = Section.TextSize,
         TextTransparency = Section.TextTransparency,
         ThemeTag = {
             TextColor3 = "Text",
         },
-        FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
+        FontFace = Font.new(Creator.Font, Section.FontWeight),
         --Parent = Config.Parent,
         --Size = UDim2.new(1,0,0,0),
         Text = Section.Title,
         Size = UDim2.new(
             1, 
-            Icon and (-Section.IconSize-8)*2
-                or (-Section.IconSize-8),
-                
+            0,
             0,
             0
         ),
         TextWrapped = true,
     })
 
-    local Main = New("Frame", {
+    
+    local function UpdateTitleSize()
+        local offset = 0
+        if Icon then
+            offset = offset - (Section.IconSize + 8)
+        end
+        if ChevronIconFrame.Visible then
+            offset = offset - (Section.IconSize + 8)
+        end
+        TitleFrame.Size = UDim2.new(1, offset, 0, 0)
+    end
+    
+    
+    local Main = Creator.NewRoundFrame(Config.Window.ElementConfig.UICorner, "Squircle", {
         Size = UDim2.new(1,0,0,0),
         BackgroundTransparency = 1,
         Parent = Config.Parent,
         ClipsDescendants = true,
         AutomaticSize = "Y",
+        ImageTransparency = Section.Box and .93 or 1,
+        ThemeTag = {
+            ImageColor3 = "Text",
+        },
     }, {
         New("TextButton", {
-            Size = UDim2.new(1,0,0,0),
+            Size = UDim2.new(1,0,0,Expandable and 0 or Section.HeaderSize),
             BackgroundTransparency = 1,
-            AutomaticSize = "Y",
+            AutomaticSize = Expandable and nil or "Y" ,
             Text = "",
             Name = "Top",
         }, {
+            Section.Box and New("UIPadding", {
+                PaddingLeft = UDim.new(0,Config.Window.ElementConfig.UIPadding),
+                PaddingRight = UDim.new(0,Config.Window.ElementConfig.UIPadding),
+            }) or nil,
             Icon,
             TitleFrame,
             New("UIListLayout", {
                 Padding = UDim.new(0,8),
                 FillDirection = "Horizontal",
                 VerticalAlignment = "Center",
-                HorizontalAlignment = not Icon and Section.TextXAlignment or "Left",
+                HorizontalAlignment = "Left",
             }),
             ChevronIconFrame,
         }),
@@ -121,10 +143,15 @@ function Element:New(Config)
             Visible = false,
             Position = UDim2.new(0,0,0,Section.HeaderSize)
         }, {
+            Section.Box and New("UIPadding", {
+                PaddingLeft = UDim.new(0,Config.Window.ElementConfig.UIPadding),
+                PaddingRight = UDim.new(0,Config.Window.ElementConfig.UIPadding),
+                PaddingBottom = UDim.new(0,Config.Window.ElementConfig.UIPadding),
+            }) or nil,
             New("UIListLayout", {
                 FillDirection = "Vertical",
                 Padding = UDim.new(0,Config.Tab.Gap),
-                VerticalAlignment = "Bottom",
+                VerticalAlignment = "Top",
             }),
         })
     })
@@ -141,9 +168,12 @@ function Element:New(Config)
         if not Section.Expandable then
             Section.Expandable = true
             ChevronIconFrame.Visible = true
+            UpdateTitleSize()
         end
-    end)
+    end, ElementsModule, Config.UIScale, Config.Tab)
     
+    
+    UpdateTitleSize()
     
     function Section:SetTitle(Title)
         TitleFrame.Text = Title
@@ -194,13 +224,6 @@ function Element:New(Config)
         end
     end)
     
-    if Section.Opened then
-        task.spawn(function()
-            task.wait()
-            Section:Open()
-        end)
-    end
-    
     task.spawn(function()
         task.wait()
         if Section.Expandable then
@@ -218,6 +241,10 @@ function Element:New(Config)
             Main.Top.AutomaticSize = "None"
             Main.Content.Visible = true
         end
+        if Section.Opened then
+            Section:Open()
+        end
+        
     end)
     
     return Section.__type, Section

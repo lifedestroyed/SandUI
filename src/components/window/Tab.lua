@@ -328,6 +328,37 @@ function TabModule.New(Config, UIScale)
         end
     end)
     
+    
+    
+    function Tab:ScrollToTheElement(elemindex)
+        Tab.UIElements.ContainerFrame.ScrollingEnabled = false
+        Tween(Tab.UIElements.ContainerFrame, .45, 
+            { 
+                CanvasPosition = Vector2.new(
+                    0, -- X
+                    
+                    Tab.Elements[elemindex].ElementFrame.AbsolutePosition.Y 
+                    - Tab.UIElements.ContainerFrame.AbsolutePosition.Y  
+                    - Tab.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset -- Y
+                ) 
+            }, 
+            Enum.EasingStyle.Quint, Enum.EasingDirection.Out
+        ):Play()
+        
+        task.spawn(function()
+            task.wait(.48)
+            
+            if Tab.Elements[elemindex].Highlight then
+                Tab.Elements[elemindex]:Highlight()
+                Tab.UIElements.ContainerFrame.ScrollingEnabled = true
+            end
+        end)
+        
+        return Tab
+    end
+	
+    
+    
 	-- yo
 	
     Tab.ElementsModule = require("../../elements/Init")
@@ -375,9 +406,9 @@ function TabModule.New(Config, UIScale)
     end
     
     function Tab:Select()
-        return Tab:SelectTab(Tab.Index)
+        return TabModule:SelectTab(Tab.Index)
     end
-	
+    
 	task.spawn(function()
         local Empty = New("Frame", {
             BackgroundTransparency = 1,
